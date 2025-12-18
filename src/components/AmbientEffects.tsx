@@ -1,105 +1,50 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 
-interface FloatingElement {
-    id: number;
-    x: number;
-    delay: number;
-    duration: number;
-    size: number;
-    emoji: string;
-}
-
 export const AmbientEffects: React.FC = () => {
-    const [elements, setElements] = useState<FloatingElement[]>([]);
-
-    useEffect(() => {
-        // Generate Christmas-themed floating elements
-        const christmasEmojis = ['❄️', '⭐', '✨', '🎄', '❤️', '💚'];
-        const initialElements: FloatingElement[] = [];
-        for (let i = 0; i < 10; i++) {
-            initialElements.push({
-                id: i,
-                x: Math.random() * 100,
-                delay: Math.random() * 8,
-                duration: 10 + Math.random() * 8,
-                size: 12 + Math.random() * 16,
-                emoji: christmasEmojis[Math.floor(Math.random() * christmasEmojis.length)]
-            });
-        }
-        setElements(initialElements);
-    }, []);
-
     return (
         <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-            {/* Christmas ambient glow spots */}
+            {/* Soft winter ambient glow spots */}
             <div
                 className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full"
                 style={{
-                    background: 'radial-gradient(circle, rgba(220,38,38,0.08) 0%, transparent 70%)',
-                    filter: 'blur(60px)'
+                    background: 'radial-gradient(circle, rgba(185,28,28,0.06) 0%, transparent 70%)',
+                    filter: 'blur(80px)'
                 }}
             />
             <div
                 className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full"
                 style={{
-                    background: 'radial-gradient(circle, rgba(22,163,74,0.08) 0%, transparent 70%)',
-                    filter: 'blur(50px)'
+                    background: 'radial-gradient(circle, rgba(21,128,61,0.05) 0%, transparent 70%)',
+                    filter: 'blur(70px)'
                 }}
             />
             <div
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full"
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full"
                 style={{
-                    background: 'radial-gradient(circle, rgba(220,38,38,0.05) 0%, transparent 60%)',
-                    filter: 'blur(80px)'
+                    background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 50%)',
+                    filter: 'blur(100px)'
                 }}
             />
 
-            {/* Floating Christmas elements */}
-            {elements.map((el) => (
+            {/* Subtle floating light particles */}
+            {[...Array(8)].map((_, i) => (
                 <motion.div
-                    key={el.id}
-                    className="absolute"
+                    key={`light-${i}`}
+                    className="absolute w-2 h-2 rounded-full bg-white/20"
                     style={{
-                        left: `${el.x}%`,
-                        fontSize: el.size,
-                        bottom: '-30px',
-                        opacity: 0.5
+                        left: `${15 + (i * 10) % 70}%`,
+                        top: `${20 + (i * 12) % 60}%`,
+                        filter: 'blur(1px)'
                     }}
                     animate={{
-                        y: [0, -window.innerHeight - 100],
-                        x: [0, Math.sin(el.id) * 40, 0],
-                        rotate: [0, 180],
-                        opacity: [0, 0.5, 0.5, 0]
+                        opacity: [0.1, 0.4, 0.1],
+                        scale: [1, 1.5, 1],
+                        y: [0, -20, 0]
                     }}
                     transition={{
-                        duration: el.duration,
-                        delay: el.delay,
-                        repeat: Infinity,
-                        ease: 'linear'
-                    }}
-                >
-                    {el.emoji}
-                </motion.div>
-            ))}
-
-            {/* Subtle sparkle dots in Christmas colors */}
-            {[...Array(12)].map((_, i) => (
-                <motion.div
-                    key={`sparkle-${i}`}
-                    className="absolute w-1.5 h-1.5 rounded-full"
-                    style={{
-                        left: `${10 + (i * 7) % 80}%`,
-                        top: `${15 + (i * 11) % 70}%`,
-                        backgroundColor: i % 2 === 0 ? 'rgba(220, 38, 38, 0.4)' : 'rgba(22, 163, 74, 0.4)'
-                    }}
-                    animate={{
-                        opacity: [0, 0.8, 0],
-                        scale: [0.5, 1.3, 0.5]
-                    }}
-                    transition={{
-                        duration: 2 + Math.random() * 2,
-                        delay: i * 0.4,
+                        duration: 4 + i * 0.5,
+                        delay: i * 0.8,
                         repeat: Infinity,
                         ease: 'easeInOut'
                     }}

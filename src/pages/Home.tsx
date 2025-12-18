@@ -2,7 +2,6 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { LoveParticles } from '../components/LoveParticles';
 import { AmbientEffects } from '../components/AmbientEffects';
 import { SnowEffect } from '../components/SnowEffect';
-import { ChristmasDecorations } from '../components/ChristmasDecorations';
 import { useSearchParams } from 'react-router-dom';
 import { BouquetCanvas } from '../components/BouquetCanvas';
 import { Controls } from '../components/Controls';
@@ -19,7 +18,6 @@ export const Home: React.FC = () => {
     const [message, setMessage] = useState<{ text: string, signature: string, subject: string } | null>(null);
     const [loading, setLoading] = useState(true);
 
-    // Initial load
     useEffect(() => {
         const s = searchParams.get('seed') || Math.random().toString(36).substring(7);
         generate(s);
@@ -49,21 +47,15 @@ export const Home: React.FC = () => {
         <Layout>
             <Header />
 
-            {/* Christmas Effects */}
+            {/* Winter Effects */}
             <SnowEffect />
-            <ChristmasDecorations />
-
-            {/* Original Effects */}
             <AmbientEffects />
             <LoveParticles />
 
-            {/* Main Content Container - Bouquet anchored to bottom */}
+            {/* Main Bouquet Display */}
             <div className="fixed inset-0 w-full h-screen h-[100dvh] overflow-hidden flex flex-col">
-
-                {/* Spacer to push bouquet down */}
                 <div className="flex-1" />
 
-                {/* Bouquet Display Area - Always anchored to bottom */}
                 <div className="relative flex items-end justify-center">
                     <AnimatePresence mode='wait'>
                         {!loading && (
@@ -78,7 +70,7 @@ export const Home: React.FC = () => {
                                     marginBottom: 'calc(env(safe-area-inset-bottom, 0px) + 0.5rem)',
                                 }}
                             >
-                                {/* Contact Shadow */}
+                                {/* Shadow */}
                                 <motion.div
                                     initial={{ opacity: 0, scale: 0.5 }}
                                     animate={{ opacity: 0.25, scale: 1 }}
@@ -89,7 +81,7 @@ export const Home: React.FC = () => {
                                     }}
                                 />
 
-                                {/* The Bouquet Container */}
+                                {/* Bouquet */}
                                 <div
                                     className="relative z-10"
                                     style={{
@@ -103,7 +95,6 @@ export const Home: React.FC = () => {
                         )}
                     </AnimatePresence>
 
-                    {/* Loading State */}
                     {loading && (
                         <motion.div
                             initial={{ opacity: 0 }}
@@ -111,16 +102,15 @@ export const Home: React.FC = () => {
                             className="flex flex-col items-center justify-center pb-32"
                             style={{ height: 'min(63vh, 560px)' }}
                         >
-                            <div className="w-10 h-10 md:w-12 md:h-12 border-2 border-rose-200 border-t-rose-500 rounded-full animate-spin" />
+                            <div className="w-10 h-10 md:w-12 md:h-12 border-2 border-red-200 border-t-red-600 rounded-full animate-spin" />
                             <p className="mt-4 text-stone-400 text-sm font-serif italic">
-                                Preparing a Christmas bouquet for Venooo... 🎄
+                                Preparing your winter bouquet...
                             </p>
                         </motion.div>
                     )}
                 </div>
             </div>
 
-            {/* Note Card */}
             {message && !loading && (
                 <NoteCard
                     message={message.text}
@@ -128,7 +118,6 @@ export const Home: React.FC = () => {
                 />
             )}
 
-            {/* Controls */}
             <Controls onGenerate={handleGenerate} />
         </Layout>
     );
