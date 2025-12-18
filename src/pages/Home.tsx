@@ -48,16 +48,19 @@ export const Home: React.FC = () => {
         <Layout>
             <Header />
 
-            {/* Winter Effects */}
-            <SnowEffect />
+            {/* Background Effects */}
             <AmbientEffects />
+            <SnowEffect />
             <LoveParticles />
+
+            {/* Christmas Scene Assets - Fixed to screen corners */}
+            <ChristmasScene />
 
             {/* Main Bouquet Display */}
             <div className="fixed inset-0 w-full h-screen h-[100dvh] overflow-hidden flex flex-col">
                 <div className="flex-1" />
 
-                <div className="relative flex items-end justify-center">
+                <div className="relative flex items-end justify-center z-20">
                     <AnimatePresence mode='wait'>
                         {!loading && (
                             <motion.div
@@ -82,12 +85,9 @@ export const Home: React.FC = () => {
                                     }}
                                 />
 
-                                {/* Christmas Scene Assets - Behind Vase */}
-                                <ChristmasScene />
-
                                 {/* Bouquet */}
                                 <div
-                                    className="relative z-20"
+                                    className="relative"
                                     style={{
                                         width: 'min(45vh, 70vw, 400px)',
                                         height: 'min(63vh, 98vw, 560px)',
