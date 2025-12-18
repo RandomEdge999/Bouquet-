@@ -28,48 +28,51 @@ export const NoteCard: React.FC<NoteCardProps> = ({ message }) => {
                 md:top-1/2 md:-translate-y-1/2
                 md:w-72 lg:w-80
                 
-                /* Card styling */
-                bg-gradient-to-br from-[#fffdf9]/95 to-[#faf8f3]/95
+                /* Card styling - Christmas colors */
+                bg-gradient-to-br from-[#fffdf9]/95 to-[#fff5f5]/95
                 backdrop-blur-sm
                 p-3 sm:p-4 md:p-5 lg:p-6
                 shadow-lg md:shadow-xl
                 transform -rotate-2
                 
-                /* Elegant border */
-                border border-stone-200/50
+                /* Festive border */
+                border-2 border-red-100/50
                 rounded-sm
             "
             style={{
-                boxShadow: '0 8px 30px -8px rgba(0, 0, 0, 0.12), 0 4px 6px -2px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255,255,255,0.5)'
+                boxShadow: '0 8px 30px -8px rgba(220, 38, 38, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255,255,255,0.5)'
             }}
         >
-            {/* Decorative corner flourishes */}
-            <div className="absolute top-1.5 left-1.5 md:top-2 md:left-2 text-rose-200/40 text-xs md:text-sm">❧</div>
-            <div className="absolute top-1.5 right-1.5 md:top-2 md:right-2 text-rose-200/40 text-xs md:text-sm rotate-180">❧</div>
-            <div className="absolute bottom-1.5 left-1.5 md:bottom-2 md:left-2 text-rose-200/40 text-xs md:text-sm rotate-180">❧</div>
-            <div className="absolute bottom-1.5 right-1.5 md:bottom-2 md:right-2 text-rose-200/40 text-xs md:text-sm">❧</div>
+            {/* Christmas corner decorations */}
+            <div className="absolute -top-1 -left-1 text-lg md:text-xl">🎄</div>
+            <div className="absolute -top-1 -right-1 text-sm md:text-base">❄️</div>
+            <div className="absolute -bottom-1 -left-1 text-sm md:text-base">🎁</div>
+            <div className="absolute -bottom-1 -right-1 text-lg md:text-xl">⭐</div>
 
-            {/* Header - Dedicated to Venooo */}
-            <div className="relative mb-2 md:mb-4 pb-2 md:pb-3 border-b border-stone-200/50">
+            {/* Header - Christmas greeting */}
+            <div className="relative mb-2 md:mb-4 pb-2 md:pb-3 border-b border-red-200/50">
                 <h3 className="font-serif text-sm md:text-base lg:text-lg font-semibold text-stone-700 tracking-wide text-center">
-                    My Dearest <span className="text-rose-500">Venooo</span>,
+                    <span className="text-green-600">Merry</span> <span className="text-red-600">Christmas</span>,
                 </h3>
+                <p className="font-serif text-xs md:text-sm text-center text-rose-500 mt-0.5">
+                    My Dearest Venooo 💕
+                </p>
                 {/* Decorative underline */}
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 md:w-16 h-px bg-gradient-to-r from-transparent via-rose-300/50 to-transparent" />
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 md:w-16 h-px bg-gradient-to-r from-transparent via-red-300/50 to-transparent" />
             </div>
 
-            {/* Handwritten Message */}
+            {/* Christmas Message */}
             <p className="font-script text-sm sm:text-base md:text-xl lg:text-2xl text-stone-600 leading-snug md:leading-relaxed mb-3 md:mb-5 text-center px-1 md:px-2 line-clamp-3 md:line-clamp-none">
                 {message}
             </p>
 
             {/* Signature */}
-            <div className="text-right pt-1.5 md:pt-2 border-t border-stone-100/50">
+            <div className="text-right pt-1.5 md:pt-2 border-t border-red-100/50">
                 <p className="font-sans text-[7px] md:text-[10px] tracking-[0.1em] md:tracking-[0.2em] text-stone-400 uppercase mb-0.5 md:mb-1">
-                    Forever yours,
+                    With all my love this Christmas,
                 </p>
                 <p className="font-serif text-xs md:text-sm lg:text-base font-semibold text-stone-700 tracking-wide">
-                    Your Aleem <span className="text-rose-500">♥</span>
+                    Your Aleem <span className="text-red-500">♥</span> 🎄
                 </p>
             </div>
         </motion.div>

@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { LoveParticles } from '../components/LoveParticles';
 import { AmbientEffects } from '../components/AmbientEffects';
+import { SnowEffect } from '../components/SnowEffect';
+import { ChristmasDecorations } from '../components/ChristmasDecorations';
 import { useSearchParams } from 'react-router-dom';
 import { BouquetCanvas } from '../components/BouquetCanvas';
 import { Controls } from '../components/Controls';
@@ -46,6 +48,12 @@ export const Home: React.FC = () => {
     return (
         <Layout>
             <Header />
+
+            {/* Christmas Effects */}
+            <SnowEffect />
+            <ChristmasDecorations />
+
+            {/* Original Effects */}
             <AmbientEffects />
             <LoveParticles />
 
@@ -67,11 +75,10 @@ export const Home: React.FC = () => {
                                 transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
                                 className="relative flex flex-col items-center"
                                 style={{
-                                    // Anchor vase to bottom
                                     marginBottom: 'calc(env(safe-area-inset-bottom, 0px) + 0.5rem)',
                                 }}
                             >
-                                {/* Contact Shadow - Grounding the vase */}
+                                {/* Contact Shadow */}
                                 <motion.div
                                     initial={{ opacity: 0, scale: 0.5 }}
                                     animate={{ opacity: 0.25, scale: 1 }}
@@ -86,7 +93,6 @@ export const Home: React.FC = () => {
                                 <div
                                     className="relative z-10"
                                     style={{
-                                        // Use viewport height for consistent sizing across devices
                                         width: 'min(45vh, 70vw, 400px)',
                                         height: 'min(63vh, 98vw, 560px)',
                                     }}
@@ -106,13 +112,15 @@ export const Home: React.FC = () => {
                             style={{ height: 'min(63vh, 560px)' }}
                         >
                             <div className="w-10 h-10 md:w-12 md:h-12 border-2 border-rose-200 border-t-rose-500 rounded-full animate-spin" />
-                            <p className="mt-4 text-stone-400 text-sm font-serif italic">Arranging flowers for Venooo...</p>
+                            <p className="mt-4 text-stone-400 text-sm font-serif italic">
+                                Preparing a Christmas bouquet for Venooo... 🎄
+                            </p>
                         </motion.div>
                     )}
                 </div>
             </div>
 
-            {/* Note Card - Always visible, positioned appropriately */}
+            {/* Note Card */}
             {message && !loading && (
                 <NoteCard
                     message={message.text}
@@ -120,7 +128,7 @@ export const Home: React.FC = () => {
                 />
             )}
 
-            {/* Controls - Fixed at bottom center */}
+            {/* Controls */}
             <Controls onGenerate={handleGenerate} />
         </Layout>
     );
