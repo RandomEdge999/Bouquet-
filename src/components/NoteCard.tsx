@@ -15,17 +15,15 @@ export const NoteCard: React.FC<NoteCardProps> = ({ message }) => {
             className="
                 fixed z-20
                 
-                /* Mobile - CENTERED above flowers */
+                /* Mobile ONLY - CENTERED horizontally above bouquet */
                 top-16 left-1/2 -translate-x-1/2
-                w-[85vw] max-w-[300px]
+                w-[90vw] max-w-[320px]
                 
-                /* Tablet - slightly larger, still top-left */
-                sm:top-20 sm:left-4 sm:right-auto sm:max-w-[300px]
-                
-                /* Desktop - Right side, centered vertically */
-                md:top-1/2 md:-translate-y-1/2 md:translate-x-0
-                md:left-auto md:right-8 lg:right-12
-                md:w-72 lg:w-80 md:max-w-none
+                /* Tablet and Desktop - Right side, centered vertically */
+                sm:top-1/2 sm:-translate-y-1/2 sm:translate-x-0
+                sm:left-auto sm:right-4
+                sm:w-64 md:w-72 lg:w-80
+                md:right-8 lg:right-12
                 
                 /* Premium card styling */
                 bg-gradient-to-br from-white/95 to-stone-50/95
