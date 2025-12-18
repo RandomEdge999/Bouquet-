@@ -15,9 +15,9 @@ export const NoteCard: React.FC<NoteCardProps> = ({ message }) => {
             className="
                 fixed z-20
                 
-                /* Mobile - TOP LEFT position, with safe margins */
-                top-16 left-3 right-3
-                w-auto max-w-[280px]
+                /* Mobile - CENTERED above flowers */
+                top-16 left-1/2 -translate-x-1/2
+                w-[85vw] max-w-[300px]
                 
                 /* Tablet - slightly larger, still top-left */
                 sm:top-20 sm:left-4 sm:right-auto sm:max-w-[300px]
@@ -26,11 +26,6 @@ export const NoteCard: React.FC<NoteCardProps> = ({ message }) => {
                 md:top-1/2 md:-translate-y-1/2 md:translate-x-0
                 md:left-auto md:right-8 lg:right-12
                 md:w-72 lg:w-80 md:max-w-none
-                
-                /* Desktop - Right side, centered vertically */
-                md:top-1/2 md:-translate-y-1/2 md:translate-x-0
-                md:left-auto md:right-8 lg:right-12
-                md:w-72 lg:w-80
                 
                 /* Premium card styling */
                 bg-gradient-to-br from-white/95 to-stone-50/95
