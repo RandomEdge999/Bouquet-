@@ -1,14 +1,13 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { LoveParticles } from '../components/LoveParticles';
 import { AmbientEffects } from '../components/AmbientEffects';
-import { SnowEffect } from '../components/SnowEffect';
-import { ChristmasScene } from '../components/ChristmasScene';
 import { useSearchParams } from 'react-router-dom';
 import { BouquetCanvas } from '../components/BouquetCanvas';
 import { Controls } from '../components/Controls';
 import { Header } from '../components/Header';
 import { Layout } from '../components/Layout';
 import { NoteCard } from '../components/NoteCard';
+import { SizeDial } from '../components/SizeDial';
 import { generateBouquet, type BouquetData } from '../lib/bouquet';
 import { generateMessage } from '../lib/message';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -18,7 +17,10 @@ export const Home: React.FC = () => {
     const [data, setData] = useState<BouquetData | null>(null);
     const [message, setMessage] = useState<{ text: string, signature: string, subject: string } | null>(null);
     const [loading, setLoading] = useState(true);
+    const [bouquetScale, setBouquetScale] = useState(1.0);
+    const bouquetRef = useRef<HTMLDivElement>(null);
 
+    // Initial load
     useEffect(() => {
         const s = searchParams.get('seed') || Math.random().toString(36).substring(7);
         generate(s);
@@ -47,20 +49,17 @@ export const Home: React.FC = () => {
     return (
         <Layout>
             <Header />
-
-            {/* Background Effects */}
             <AmbientEffects />
-            <SnowEffect />
             <LoveParticles />
 
-            {/* Christmas Scene Assets - Fixed to screen corners */}
-            <ChristmasScene />
-
-            {/* Main Bouquet Display */}
+            {/* Main Content Container - Bouquet anchored to bottom */}
             <div className="fixed inset-0 w-full h-screen h-[100dvh] overflow-hidden flex flex-col">
+
+                {/* Spacer to push bouquet down */}
                 <div className="flex-1" />
 
-                <div className="relative flex items-end justify-center z-20">
+                {/* Bouquet Display Area - Always anchored to bottom */}
+                <div className="relative flex items-end justify-center">
                     <AnimatePresence mode='wait'>
                         {!loading && (
                             <motion.div
@@ -71,10 +70,13 @@ export const Home: React.FC = () => {
                                 transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
                                 className="relative flex flex-col items-center"
                                 style={{
+                                    // Anchor vase to bottom - positioned lower on mobile
                                     marginBottom: 'calc(env(safe-area-inset-bottom, 0px) + 0.5rem)',
+                                    transform: `scale(${bouquetScale})`,
+                                    transformOrigin: 'bottom center'
                                 }}
                             >
-                                {/* Shadow */}
+                                {/* Contact Shadow - Grounding the vase */}
                                 <motion.div
                                     initial={{ opacity: 0, scale: 0.5 }}
                                     animate={{ opacity: 0.25, scale: 1 }}
@@ -85,10 +87,13 @@ export const Home: React.FC = () => {
                                     }}
                                 />
 
-                                {/* Bouquet */}
+                                {/* The Bouquet Container - Scales with dial */}
                                 <div
-                                    className="relative"
+                                    ref={bouquetRef}
+                                    className="relative z-10"
                                     style={{
+                                        // Use viewport height for consistent sizing across devices
+                                        // Smaller on mobile to fit the table
                                         width: 'min(45vh, 70vw, 400px)',
                                         height: 'min(63vh, 98vw, 560px)',
                                     }}
@@ -99,6 +104,7 @@ export const Home: React.FC = () => {
                         )}
                     </AnimatePresence>
 
+                    {/* Loading State */}
                     {loading && (
                         <motion.div
                             initial={{ opacity: 0 }}
@@ -106,15 +112,17 @@ export const Home: React.FC = () => {
                             className="flex flex-col items-center justify-center pb-32"
                             style={{ height: 'min(63vh, 560px)' }}
                         >
-                            <div className="w-10 h-10 md:w-12 md:h-12 border-2 border-red-200 border-t-red-600 rounded-full animate-spin" />
-                            <p className="mt-4 text-stone-400 text-sm font-serif italic">
-                                Preparing your winter bouquet...
-                            </p>
+                            <div className="w-10 h-10 md:w-12 md:h-12 border-2 border-rose-200 border-t-rose-500 rounded-full animate-spin" />
+                            <p className="mt-4 text-stone-400 text-sm font-serif italic">Arranging flowers for Venooo...</p>
                         </motion.div>
                     )}
                 </div>
             </div>
 
+            {/* Size Dial Control */}
+            <SizeDial value={bouquetScale} onChange={setBouquetScale} />
+
+            {/* Note Card - Always visible, positioned appropriately */}
             {message && !loading && (
                 <NoteCard
                     message={message.text}
@@ -122,6 +130,7 @@ export const Home: React.FC = () => {
                 />
             )}
 
+            {/* Controls - Fixed at bottom center */}
             <Controls onGenerate={handleGenerate} />
         </Layout>
     );
