@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { LoveParticles } from '../components/LoveParticles';
 import { AmbientEffects } from '../components/AmbientEffects';
 import { SnowEffect } from '../components/SnowEffect';
+import { ChristmasScene } from '../components/ChristmasScene';
 import { useSearchParams } from 'react-router-dom';
 import { BouquetCanvas } from '../components/BouquetCanvas';
 import { Controls } from '../components/Controls';
@@ -81,9 +82,12 @@ export const Home: React.FC = () => {
                                     }}
                                 />
 
+                                {/* Christmas Scene Assets - Behind Vase */}
+                                <ChristmasScene />
+
                                 {/* Bouquet */}
                                 <div
-                                    className="relative z-10"
+                                    className="relative z-20"
                                     style={{
                                         width: 'min(45vh, 70vw, 400px)',
                                         height: 'min(63vh, 98vw, 560px)',
