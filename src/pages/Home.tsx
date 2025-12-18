@@ -87,13 +87,14 @@ export const Home: React.FC = () => {
                                     }}
                                 />
 
-                                {/* The Bouquet Container */}
+                                {/* The Bouquet Container - BIGGER on mobile */}
                                 <div
                                     ref={bouquetRef}
                                     className="relative z-10"
                                     style={{
-                                        width: 'min(45vh, 70vw, 400px)',
-                                        height: 'min(63vh, 98vw, 560px)',
+                                        // Increased size for mobile - bouquet is the star!
+                                        width: 'min(55vh, 85vw, 450px)',
+                                        height: 'min(77vh, 119vw, 630px)',
                                     }}
                                 >
                                     <BouquetCanvas svgContent={data.svg} seed={data.seed} />
