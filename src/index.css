@@ -1,0 +1,106 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Great+Vibes&family=Inter:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  html, body, #root {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+  
+  body {
+    @apply text-ink antialiased;
+    font-feature-settings: "cv11", "ss01";
+    
+    /* Background image - IMPORTANT: Must come AFTER any background-color */
+    background-color: #fdfbf7; /* Fallback color */
+    background-image: url('/Bouquet-/background.png');
+    background-size: cover;
+    background-position: center bottom;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
+  
+  /* Ensure #root doesn't block the background */
+  #root {
+    background: transparent !important;
+  }
+}
+
+@layer components {
+  /* Elegant decorative flourish */
+  .flourish {
+    @apply relative;
+  }
+  
+  .flourish::before,
+  .flourish::after {
+    content: '❧';
+    @apply absolute text-rose-300/40 text-lg;
+  }
+  
+  .flourish::before {
+    @apply -left-6 top-1/2 -translate-y-1/2;
+  }
+  
+  .flourish::after {
+    @apply -right-6 top-1/2 -translate-y-1/2 rotate-180;
+  }
+  
+  /* Paper texture effect */
+  .paper-texture {
+    background-image: 
+      linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.03) 50%, transparent 100%),
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
+  
+  /* Romantic gradient text */
+  .text-romantic {
+    @apply bg-gradient-to-r from-rose-600 via-rose-500 to-rose-400 bg-clip-text text-transparent;
+  }
+  
+  /* Soft glow effect */
+  .glow-rose {
+    box-shadow: 0 0 40px rgba(244, 63, 94, 0.15);
+  }
+  
+  /* Line clamp for mobile */
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+@layer utilities {
+  /* Safe area for mobile */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0.5rem);
+  }
+  
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0.5rem);
+  }
+  
+  /* Smooth transitions */
+  .transition-romantic {
+    @apply transition-all duration-500 ease-out;
+  }
+  
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}

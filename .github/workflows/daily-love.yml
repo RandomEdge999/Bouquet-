@@ -1,0 +1,32 @@
+name: Daily Love Email
+
+on:
+  schedule:
+    # Run at 13:05 UTC and 14:05 UTC daily (covers CST/CDT 8 AM)
+    - cron: '5 13,14 * * *'
+  workflow_dispatch:
+
+jobs:
+  send-email:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Send Email
+        env:
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_APP_PASSWORD: ${{ secrets.SMTP_APP_PASSWORD }}
+          TO_EMAIL: ${{ secrets.TO_EMAIL }}
+          FROM_NAME: ${{ vars.FROM_NAME || 'Bouquet Bot' }}
+          SITE_URL: ${{ vars.SITE_URL }}
+        run: npx tsx scripts/sendDailyEmail.ts
