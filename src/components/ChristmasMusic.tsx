@@ -7,21 +7,19 @@ export const ChristmasMusic: React.FC = () => {
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
     useEffect(() => {
-        // Create audio element with jingle bells sound
-        // Using a free royalty-free jingle bells loop URL
-        const audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
+        // Christmas Lo-Fi music - using a royalty-free lo-fi Christmas track
+        // Multiple sources for reliability
+        const audio = new Audio();
+
+        // Set up audio properties
         audio.loop = true;
-        audio.volume = 0.3;
+        audio.volume = 0.25;
         audio.preload = 'auto';
+        audio.crossOrigin = 'anonymous';
 
-        audio.addEventListener('canplaythrough', () => {
-            // Audio loaded and ready
-        });
-
-        audio.addEventListener('error', () => {
-            // Fallback: try alternate source
-            audio.src = 'https://freesound.org/data/previews/131/131661_2398403-lq.mp3';
-        });
+        // Use a reliable lo-fi Christmas source
+        // This is a royalty-free lo-fi Christmas instrumental
+        audio.src = 'https://cdn.pixabay.com/download/audio/2022/12/10/audio_e3c813daa4.mp3?filename=christmas-lofi-hip-hop-chill-127921.mp3';
 
         audioRef.current = audio;
 
@@ -37,9 +35,8 @@ export const ChristmasMusic: React.FC = () => {
         if (isPlaying) {
             audioRef.current.pause();
         } else {
-            audioRef.current.play().catch(() => {
-                // Autoplay blocked - user needs to interact first
-                console.log('Audio playback requires user interaction');
+            audioRef.current.play().catch((err) => {
+                console.log('Audio playback requires user interaction:', err);
             });
         }
         setIsPlaying(!isPlaying);
@@ -60,7 +57,7 @@ export const ChristmasMusic: React.FC = () => {
             style={{
                 boxShadow: '0 4px 20px rgba(220, 38, 38, 0.3)'
             }}
-            title={isPlaying ? 'Pause Christmas Music' : 'Play Christmas Music'}
+            title={isPlaying ? 'Pause Lo-Fi Christmas Music' : 'Play Lo-Fi Christmas Music'}
         >
             {isPlaying ? (
                 <Volume2 size={18} className="text-white sm:w-5 sm:h-5" />
@@ -88,8 +85,8 @@ export const ChristmasMusic: React.FC = () => {
                 </>
             )}
 
-            {/* Santa hat decoration */}
-            <span className="absolute -top-3 -right-1 text-sm transform rotate-12">🎅</span>
+            {/* Christmas tree decoration */}
+            <span className="absolute -top-3 -right-1 text-sm transform rotate-12">🎄</span>
         </motion.button>
     );
 };
