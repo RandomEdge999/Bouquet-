@@ -1,13 +1,14 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { LoveParticles } from '../components/LoveParticles';
 import { AmbientEffects } from '../components/AmbientEffects';
+import { SnowEffect } from '../components/SnowEffect';
+import { ChristmasMusic } from '../components/ChristmasMusic';
 import { useSearchParams } from 'react-router-dom';
 import { BouquetCanvas } from '../components/BouquetCanvas';
 import { Controls } from '../components/Controls';
 import { Header } from '../components/Header';
 import { Layout } from '../components/Layout';
 import { NoteCard } from '../components/NoteCard';
-import { SizeDial } from '../components/SizeDial';
 import { generateBouquet, type BouquetData } from '../lib/bouquet';
 import { generateMessage } from '../lib/message';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -17,7 +18,6 @@ export const Home: React.FC = () => {
     const [data, setData] = useState<BouquetData | null>(null);
     const [message, setMessage] = useState<{ text: string, signature: string, subject: string } | null>(null);
     const [loading, setLoading] = useState(true);
-    const [bouquetScale, setBouquetScale] = useState(1.0);
     const bouquetRef = useRef<HTMLDivElement>(null);
 
     // Initial load
@@ -50,6 +50,7 @@ export const Home: React.FC = () => {
         <Layout>
             <Header />
             <AmbientEffects />
+            <SnowEffect />
             <LoveParticles />
 
             {/* Main Content Container - Bouquet anchored to bottom */}
@@ -70,9 +71,8 @@ export const Home: React.FC = () => {
                                 transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
                                 className="relative flex flex-col items-center"
                                 style={{
-                                    // Anchor vase to bottom - positioned lower on mobile
+                                    // Anchor vase to bottom
                                     marginBottom: 'calc(env(safe-area-inset-bottom, 0px) + 0.5rem)',
-                                    transform: `scale(${bouquetScale})`,
                                     transformOrigin: 'bottom center'
                                 }}
                             >
@@ -87,13 +87,11 @@ export const Home: React.FC = () => {
                                     }}
                                 />
 
-                                {/* The Bouquet Container - Scales with dial */}
+                                {/* The Bouquet Container */}
                                 <div
                                     ref={bouquetRef}
                                     className="relative z-10"
                                     style={{
-                                        // Use viewport height for consistent sizing across devices
-                                        // Smaller on mobile to fit the table
                                         width: 'min(45vh, 70vw, 400px)',
                                         height: 'min(63vh, 98vw, 560px)',
                                     }}
@@ -119,8 +117,8 @@ export const Home: React.FC = () => {
                 </div>
             </div>
 
-            {/* Size Dial Control */}
-            <SizeDial value={bouquetScale} onChange={setBouquetScale} />
+            {/* Christmas Music Control */}
+            <ChristmasMusic />
 
             {/* Note Card - Always visible, positioned appropriately */}
             {message && !loading && (
