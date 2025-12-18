@@ -15,12 +15,17 @@ export const NoteCard: React.FC<NoteCardProps> = ({ message }) => {
             className="
                 fixed z-20
                 
-                /* Mobile - TOP position, centered horizontally */
-                top-16 left-1/2 -translate-x-1/2
-                w-[280px]
+                /* Mobile - TOP LEFT position, with safe margins */
+                top-16 left-3 right-3
+                w-auto max-w-[280px]
                 
-                /* Tablet - slightly larger, still top */
-                sm:top-20 sm:w-[320px]
+                /* Tablet - slightly larger, still top-left */
+                sm:top-20 sm:left-4 sm:right-auto sm:max-w-[300px]
+                
+                /* Desktop - Right side, centered vertically */
+                md:top-1/2 md:-translate-y-1/2 md:translate-x-0
+                md:left-auto md:right-8 lg:right-12
+                md:w-72 lg:w-80 md:max-w-none
                 
                 /* Desktop - Right side, centered vertically */
                 md:top-1/2 md:-translate-y-1/2 md:translate-x-0
