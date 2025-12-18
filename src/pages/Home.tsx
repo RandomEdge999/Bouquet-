@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { LoveParticles } from '../components/LoveParticles';
 import { AmbientEffects } from '../components/AmbientEffects';
 import { SnowEffect } from '../components/SnowEffect';
-import { ChristmasMusic } from '../components/ChristmasMusic';
+import { MusicPlayer } from '../components/MusicPlayer';
 import { useSearchParams } from 'react-router-dom';
 import { BouquetCanvas } from '../components/BouquetCanvas';
 import { Controls } from '../components/Controls';
@@ -118,7 +118,7 @@ export const Home: React.FC = () => {
             </div>
 
             {/* Christmas Music Control */}
-            <ChristmasMusic />
+            <MusicPlayer />
 
             {/* Note Card - Always visible, positioned appropriately */}
             {message && !loading && (
