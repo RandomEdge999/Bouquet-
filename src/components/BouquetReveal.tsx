@@ -147,73 +147,10 @@ const CloudCover: React.FC<{ phase: RevealPhase }> = ({ phase }) => {
         </AnimatePresence>
     );
 };
-// Floating flower petals during preparation
-const FloatingPetals: React.FC = () => {
-    const petals = Array.from({ length: 16 }, (_, i) => ({
-        id: i,
-        x: Math.random() * 100,
-        delay: Math.random() * 0.8,
-        duration: 2 + Math.random() * 1.5,
-        color: ['#f9a8d4', '#fda4af', '#fecdd3', '#f0abfc', '#c4b5fd', '#fbbf24'][Math.floor(Math.random() * 6)]
-    }));
-
-    return (
-        <div className="fixed inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 101 }}>
-            {petals.map(petal => (
-                <motion.div
-                    key={petal.id}
-                    className="absolute"
-                    style={{ left: `${petal.x}%`, top: '70%' }}
-                    initial={{ opacity: 0, y: 80, rotate: 0, scale: 0 }}
-                    animate={{
-                        opacity: [0, 1, 1, 0],
-                        y: [80, -30, -120, -180],
-                        rotate: [0, 180, 360, 540],
-                        scale: [0, 1.2, 1, 0.6],
-                        x: [0, (Math.random() - 0.5) * 120, (Math.random() - 0.5) * 180]
-                    }}
-                    transition={{
-                        delay: petal.delay,
-                        duration: petal.duration,
-                        ease: 'easeOut'
-                    }}
-                >
-                    <svg width="24" height="28" viewBox="0 0 20 24">
-                        <path
-                            d="M 10 0 Q 0 8 5 18 Q 10 24 15 18 Q 20 8 10 0"
-                            fill={petal.color}
-                            opacity="0.85"
-                        />
-                    </svg>
-                </motion.div>
-            ))}
-        </div>
-    );
-};
+// FloatingPetals removed
 
 // Sparkles removed as per request
 const SparklesBurst: React.FC = () => null;
-const GoldenRing: React.FC = () => {
-    return (
-        <motion.div
-            className="fixed inset-0 flex items-center justify-center pointer-events-none"
-            style={{ zIndex: 103 }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: [0, 0.7, 0] }}
-            transition={{ duration: 1.5, ease: 'easeOut' }}
-        >
-            <motion.div
-                className="rounded-full border-4 border-yellow-300"
-                initial={{ width: 0, height: 0 }}
-                animate={{ width: 500, height: 500 }}
-                transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-                style={{
-                    boxShadow: '0 0 60px rgba(255, 215, 0, 0.6), inset 0 0 40px rgba(255, 215, 0, 0.3)'
-                }}
-            />
-        </motion.div>
-    );
-};
 
 export const BouquetReveal: React.FC<BouquetRevealProps> = ({
     isRevealing,
@@ -290,15 +227,7 @@ export const BouquetReveal: React.FC<BouquetRevealProps> = ({
             {/* Cloud cover - FIXED: now uses fixed positioning and proper z-index */}
             <CloudCover phase={phase} />
 
-            {/* Floating petals during preparation */}
-            <AnimatePresence>
-                {phase === 'preparing' && <FloatingPetals />}
-            </AnimatePresence>
-
-            {/* Golden ring burst on reveal */}
-            <AnimatePresence>
-                {phase === 'reveal' && <GoldenRing />}
-            </AnimatePresence>
+            {/* Floating petals removed per user request (random leaf glitch) */}
 
             {/* Sparkles on reveal */}
             <AnimatePresence>
@@ -319,27 +248,6 @@ export const BouquetReveal: React.FC<BouquetRevealProps> = ({
                         }}
                     >
                         {children}
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* Magical glow during reveal */}
-            <AnimatePresence>
-                {phase === 'reveal' && (
-                    <motion.div
-                        className="fixed inset-0 pointer-events-none"
-                        style={{ zIndex: 99 }}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.8 }}
-                    >
-                        <div
-                            className="absolute inset-0"
-                            style={{
-                                background: 'radial-gradient(circle at 50% 60%, rgba(255, 215, 0, 0.3) 0%, rgba(255, 182, 193, 0.2) 25%, transparent 55%)'
-                            }}
-                        />
                     </motion.div>
                 )}
             </AnimatePresence>

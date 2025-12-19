@@ -120,14 +120,16 @@ export const generateBouquet = (seed: string): BouquetData => {
   const bloomCy = vaseY - vaseHeight - 40;
   const bloomCx = width / 2;
 
-  // 1. Generate Lush Foliage (Base) - INCREASED VOLUME
-  const foliageCount = 25 + Math.floor(prng() * 10); // 25-35 leaves (was 14)
+  // 1. Generate Lush Foliage (Base) - TEMPORARILY DISABLED TO DEBUG
+  const foliageCount = 0; // Was: 20 + Math.floor(prng() * 8)
+
+  /*
   for (let i = 0; i < foliageCount; i++) {
     const type: FlowerType = prng() > 0.5 ? 'fern' : 'eucalyptus';
     const color = type === 'fern' ? palette.leafColor : '#7ca982';
-    // Randomize angle distribution
-    const angle = (i / foliageCount) * Math.PI + Math.PI + (prng() - 0.5) * 0.5;
-    const r = 100 + prng() * 80; // Wider spread
+    // Randomize angle distribution - TIGHTER spread to avoid floating artifacts
+    const angle = (i / foliageCount) * Math.PI + Math.PI + (prng() - 0.5) * 0.3; // Reduced variance
+    const r = 80 + prng() * 60; // Tighter radius (was 100+80)
     const x = bloomCx + Math.cos(angle) * r;
     const y = bloomCy + Math.sin(angle) * r * 0.7 + 80;
 
@@ -135,60 +137,50 @@ export const generateBouquet = (seed: string): BouquetData => {
     if (i % 2 === 0) foliageBack.push(el);
     else foliageFront.push(el);
   }
+  */
 
-  // 2. Generate Main Flowers & Stems - MASSIVE VOLUME & VARIETY
-  const flowerCount = 50 + Math.floor(prng() * 25); // 50-75 flowers
-  const spreadFactor = 1.0 + prng() * 0.4; // 1.0x - 1.4x spread
+  // 2. Generate Main Flowers & Stems - OPTIMIZED
+  const flowerCount = 40 + Math.floor(prng() * 20); // 40-60 flowers (Balanced for mobile)
+  const spreadFactor = 0.9 + prng() * 0.3; // Slightly tighter spread
 
-  // Randomize phyllotaxis angle for unique layout structure
+  // ... (Phyllotaxis distribution kept same, but less count)
   const goldenAngle = 2.39996 + (prng() - 0.5) * 0.1;
 
   const availableTypes: FlowerType[] = ['rose', 'tulip', 'peony', 'lily', 'carnation', 'daisy'];
-
-  // Randomly select dominant flowers for this specific bouquet seed
   const dominantType = availableTypes[Math.floor(prng() * availableTypes.length)];
   const secondaryType = availableTypes[Math.floor(prng() * availableTypes.length)];
 
   for (let i = 0; i < flowerCount; i++) {
-    // Phyllotaxis distribution
     const r = (15 + Math.sqrt(i) * 55) * spreadFactor;
     const theta = i * goldenAngle;
-
+    // ... (coordinates calculation same)
     const x = bloomCx + r * Math.cos(theta);
     const y = bloomCy + r * Math.sin(theta) * 0.8 + (prng() - 0.5) * 40;
 
+    // ... (Type selection same)
     let type: FlowerType = 'rose';
     let scale = 50;
-
-    // Logic: Center = Dominant (Peonies/Roses), Edges = Mixed
     const distRatio = r / (250 * spreadFactor);
-
     if (distRatio < 0.3) {
-      // Core: Big showstoppers
       type = prng() > 0.3 ? dominantType : 'peony';
       scale = 80 + prng() * 40;
     } else if (distRatio < 0.7) {
-      // Middle: Mix of dominant and secondary
       type = prng() > 0.5 ? dominantType : secondaryType;
       scale = 60 + prng() * 30;
     } else {
-      // Edges: Wild mix
       type = availableTypes[Math.floor(prng() * availableTypes.length)];
       scale = 40 + prng() * 30;
     }
-
     const color = palette.flowerColors[Math.floor(prng() * palette.flowerColors.length)];
 
-    // Stem convergence
+    // ... (Stem logic same)
     const neckX = vaseX + (prng() - 0.5) * 25;
     const neckY = vaseY - vaseHeight + 10;
-
-    // Curved stem
     const cp1x = x + (prng() - 0.5) * 30;
     const cp1y = (y + neckY) * 0.5 + (prng() - 0.5) * 20;
+
     stemsAbove.push(`<path d="M ${x} ${y} Q ${cp1x} ${cp1y} ${neckX} ${neckY}" stroke="${palette.stemColor}" stroke-width="${2 + prng()}" fill="none" />`);
 
-    // Stem inside
     const bottomX = vaseX + (prng() - 0.5) * 70;
     const bottomY = vaseY - 10;
     stemsInside.push(`<path d="M ${neckX} ${neckY} L ${bottomX} ${bottomY}" stroke="${palette.stemColor}" stroke-width="2" fill="none" opacity="0.4" />`);
@@ -196,54 +188,55 @@ export const generateBouquet = (seed: string): BouquetData => {
     bloomingFlowers.push(generateFlower(seed + i, type, color, scale, x, y));
   }
 
-  // 3. Add Baby's Breath filler - DENSE CLOUDS
-  const fillerCount = 15 + Math.floor(prng() * 10);
+  // 3. Filler - Reduced
+  const fillerCount = 10 + Math.floor(prng() * 8);
   for (let i = 0; i < fillerCount; i++) {
     const angle = prng() * Math.PI * 2;
-    const r = 40 + prng() * 160;
+    const r = 40 + prng() * 140; // Tighter
     const x = bloomCx + Math.cos(angle) * r;
     const y = bloomCy + Math.sin(angle) * r * 0.7;
-    fillerLayer.push(generateBabysBreath(x, y, 35, 12 + Math.floor(prng() * 15), prng));
+    fillerLayer.push(generateBabysBreath(x, y, 35, 12 + Math.floor(prng() * 10), prng));
   }
 
-  // 3.5. Add dewdrops
+  // ... (Rest of logic)
+
+  // ... (Dewdrops reduced)
   const dewdrops: string[] = [];
-  for (let i = 0; i < 20; i++) { // More dewdrops
+  for (let i = 0; i < 12; i++) { // Reduced count
     const angle = prng() * Math.PI * 2;
-    const r = prng() * 150;
+    const r = prng() * 120;
     const dx = bloomCx + Math.cos(angle) * r;
     const dy = bloomCy + Math.sin(angle) * r * 0.7;
     const size = 2 + prng() * 4;
     dewdrops.push(`
-      <ellipse cx="${dx}" cy="${dy}" rx="${size}" ry="${size * 0.7}" 
-        fill="url(#dewdrop-grad)" opacity="${0.6 + prng() * 0.3}"/>
-    `);
+        <ellipse cx="${dx}" cy="${dy}" rx="${size}" ry="${size * 0.7}" 
+          fill="url(#dewdrop-grad)" opacity="${0.6 + prng() * 0.3}"/>
+      `);
   }
 
-  // Sparkles removed as per user request (was "tacky")
-  // Clean, elegant look only
+  // Sparkles removed
   const sparkles: string[] = [];
 
-  // 4. Generate Ribbon
+  // 4. Ribbon (Same)
   const ribbonColors = ['#e63946', '#d4a373', '#bc6c25', '#9d4edd', '#e07be0'];
   const ribbonColor = ribbonColors[Math.floor(prng() * ribbonColors.length)];
   const ribbon = generateRibbon(vaseX, vaseY - vaseHeight + 5, ribbonColor, prng);
 
-  // 5. Generate Fauna (Increased)
-  const butterflyCount = Math.floor(prng() * 4) + 2; // 2-6 butterflies
+  // 5. Fauna (Reduced count)
+  const butterflyCount = Math.floor(prng() * 3) + 1; // 1-4 butterflies
   const faunaLayer: string[] = [];
 
   for (let i = 0; i < butterflyCount; i++) {
-    const bx = bloomCx + (prng() - 0.5) * 300; // Wider range
-    const by = bloomCy + (prng() - 0.5) * 250;
+    const bx = bloomCx + (prng() - 0.5) * 200; // Tighter range (was 300)
+    const by = bloomCy + (prng() - 0.5) * 180;
     const bColor = prng() > 0.5 ? '#f4a261' : '#e9c46a';
     faunaLayer.push(generateFlower(seed + 'bug' + i, 'butterfly', bColor, 25 + prng() * 15, bx, by));
   }
 
   // Ladybugs
-  const ladybugCount = Math.floor(prng() * 5) + 2;
+  const ladybugCount = Math.floor(prng() * 3) + 1;
   for (let i = 0; i < ladybugCount; i++) {
-    const r = prng() * 140;
+    const r = prng() * 100;
     const theta = prng() * Math.PI * 2;
     const lx = bloomCx + Math.cos(theta) * r;
     const ly = bloomCy + Math.sin(theta) * r;
@@ -252,137 +245,100 @@ export const generateBouquet = (seed: string): BouquetData => {
 
   bloomingFlowers.reverse();
 
-  // SVG Structure with enhanced visuals - PREMIUM single vase design
+  // SVG Structure - REMOVED HEAVY FILTERS for performance
   const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" style="overflow: visible" preserveAspectRatio="xMidYMid meet">
-      <defs>
-        <style>
-          @keyframes bloom {
-            0% { transform: scale(0); opacity: 0; }
-            40% { transform: scale(1.1); opacity: 0.8; }
-            100% { transform: scale(1); opacity: 1; }
-          }
-          @keyframes sway {
-            0%, 100% { transform: rotate(-3deg); }
-            50% { transform: rotate(3deg); }
-          }
-          /* Fix: Rotate around 0,0 where the stem connects (local coordinates) */
-          .flower-bloom { transform-origin: 0px 0px; }
-          .flower-sway { transform-origin: 0px 0px; animation: sway 5s ease-in-out infinite; }
-        </style>
-        <filter id="glass-blur">
-             <feGaussianBlur in="SourceGraphic" stdDeviation="2" />
-        </filter>
-        <filter id="glass-specular">
-            <feSpecularLighting result="specOut" specularExponent="30" lighting-color="#ffffff">
-                <fePointLight x="${width / 2 - 50}" y="${height / 2}" z="200"/>
-            </feSpecularLighting>
-            <feComposite in="SourceGraphic" in2="specOut" operator="arithmetic" k1="0" k2="1" k3="1" k4="0"/>
-        </filter>
-        <filter id="watercolor">
-             <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="2" result="noise" />
-             <feDisplacementMap in="SourceGraphic" in2="noise" scale="1" />
-        </filter>
-        <linearGradient id="water-grad" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stop-color="#d4f1f9" stop-opacity="0.4" />
-            <stop offset="50%" stop-color="#a8daec" stop-opacity="0.55" />
-            <stop offset="100%" stop-color="#7ec8e3" stop-opacity="0.7" />
-        </linearGradient>
-        <!-- SINGLE elegant vase gradient -->
-        <linearGradient id="vase-glass" x1="0" x2="1" y1="0" y2="0">
-            <stop offset="0%" stop-color="#d0e8f5" stop-opacity="0.25" />
-            <stop offset="25%" stop-color="#ffffff" stop-opacity="0.1" />
-            <stop offset="50%" stop-color="#f0f8ff" stop-opacity="0.08" />
-            <stop offset="75%" stop-color="#ffffff" stop-opacity="0.12" />
-            <stop offset="100%" stop-color="#d0e8f5" stop-opacity="0.2" />
-        </linearGradient>
-        <!-- Dewdrop gradient for premium effect -->
-        <radialGradient id="dewdrop-grad" cx="30%" cy="30%" r="70%">
-            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9" />
-            <stop offset="50%" stop-color="#e0f7ff" stop-opacity="0.6" />
-            <stop offset="100%" stop-color="#b0e0ff" stop-opacity="0.3" />
-        </radialGradient>
-        <filter id="soft-shadow">
-            <feDropShadow dx="0" dy="4" stdDeviation="8" flood-opacity="0.15"/>
-        </filter>
-        <filter id="glow">
-            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-            <feMerge>
-                <feMergeNode in="coloredBlur"/>
-                <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-        </filter>
-         <clipPath id="vase-clip">
-            <path d="${vasePath}" />
-         </clipPath>
-      </defs>
-
-      <!-- Vase Shadow on table -->
-      <ellipse cx="${vaseX}" cy="${vaseY + 5}" rx="${vaseWidth / 2 + 25}" ry="18" fill="#000" opacity="0.12" />
-
-      <!-- Rear Foliage -->
-      <g filter="url(#soft-shadow)">${foliageBack.join('')}</g>
-
-      <!-- SINGLE CLEAN VASE with proper glass effect -->
-      <g>
-        <!-- Main glass body -->
-        <path d="${vasePath}" fill="url(#vase-glass)" stroke="rgba(200,220,240,0.4)" stroke-width="1.5" />
-        
-        <!-- Stems Inside Vase (clipped) -->
-        <g clip-path="url(#vase-clip)">
-           ${stemsInside.join('')}
-        </g>
-        
-        <!-- Water -->
-        <path d="${waterPath}" fill="url(#water-grad)" clip-path="url(#vase-clip)" />
-        
-        <!-- Glass rim highlight -->
-        <path d="M ${vaseX - vaseWidth / 2 + 5} ${vaseY - vaseHeight} 
-                 Q ${vaseX} ${vaseY - vaseHeight - 3} ${vaseX + vaseWidth / 2 - 5} ${vaseY - vaseHeight}" 
-              stroke="rgba(255,255,255,0.6)" stroke-width="2" fill="none" stroke-linecap="round"/>
-        
-        <!-- Left edge highlight -->
-        <path d="M ${vaseX - vaseWidth / 2 + 12} ${vaseY - vaseHeight + 15} 
-                 Q ${vaseX - vaseWidth / 2 + 5} ${vaseY - vaseHeight / 2} ${vaseX - vaseWidth / 2 + 18} ${vaseY - 25}" 
-              stroke="rgba(255,255,255,0.5)" stroke-width="3" fill="none" stroke-linecap="round"/>
-        
-        <!-- Right subtle reflection -->
-        <path d="M ${vaseX + vaseWidth / 2 - 20} ${vaseY - vaseHeight + 25} 
-                 L ${vaseX + vaseWidth / 2 - 15} ${vaseY - 35}" 
-              stroke="rgba(255,255,255,0.25)" stroke-width="5" fill="none" stroke-linecap="round"/>
-      </g>
-      
-      <!-- Glass Highlight -->
-      <path d="M ${vaseX - vaseWidth / 2 + 15} ${vaseY - vaseHeight + 20} 
-               Q ${vaseX - vaseWidth / 2 + 10} ${vaseY - vaseHeight / 2} ${vaseX - vaseWidth / 2 + 20} ${vaseY - 30}" 
-            stroke="rgba(255,255,255,0.5)" stroke-width="4" fill="none" stroke-linecap="round"/>
-      
-      <!-- Ribbon at Vase Neck -->
-      ${ribbon}
-      
-      <!-- Stems Above -->
-      <g>${stemsAbove.join('')}</g>
-      
-      <!-- Filler flowers (Baby's Breath) -->
-      <g>${fillerLayer.join('')}</g>
-      
-      <!-- Front Foliage -->
-      <g>${foliageFront.join('')}</g>
-      
-      <!-- Main Blooms -->
-      <g filter="url(#soft-shadow) url(#watercolor)">${bloomingFlowers.join('')}</g>
-      
-      <!-- Dewdrops for premium effect -->
-      <g filter="url(#glow)">${dewdrops.join('')}</g>
-      
-      <!-- Sparkles for magical touch -->
-      <g>${sparkles.join('')}</g>
-      
-      <!-- Fauna (Butterflies/Ladybugs) -->
-      <g>${faunaLayer.join('')}</g>
-      
-    </svg>
-  `;
+     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" style="overflow: visible" preserveAspectRatio="xMidYMid meet">
+       <defs>
+         <style>
+           @keyframes bloom {
+             0% { transform: scale(0); opacity: 0; }
+             40% { transform: scale(1.1); opacity: 0.8; }
+             100% { transform: scale(1); opacity: 1; }
+           }
+           @keyframes sway {
+             0%, 100% { transform: rotate(-3deg); }
+             50% { transform: rotate(3deg); }
+           }
+           .flower-bloom { transform-origin: 0px 0px; }
+           .flower-sway { transform-origin: 0px 0px; animation: sway 5s ease-in-out infinite; }
+         </style>
+         
+         <!-- Optimized Filters: Removed complex turbulence/displacement -->
+         
+         <!-- Simple Specular (Kept as it's cheapish) -->
+         <filter id="glass-specular">
+             <feSpecularLighting result="specOut" specularExponent="30" lighting-color="#ffffff">
+                 <fePointLight x="${width / 2 - 50}" y="${height / 2}" z="200"/>
+             </feSpecularLighting>
+             <feComposite in="SourceGraphic" in2="specOut" operator="arithmetic" k1="0" k2="1" k3="1" k4="0"/>
+         </filter>
+ 
+         <!-- Removed Watercolor Filter (Laggy) -->
+         
+         <linearGradient id="water-grad" x1="0" x2="0" y1="0" y2="1">
+             <stop offset="0%" stop-color="#d4f1f9" stop-opacity="0.4" />
+             <stop offset="50%" stop-color="#a8daec" stop-opacity="0.55" />
+             <stop offset="100%" stop-color="#7ec8e3" stop-opacity="0.7" />
+         </linearGradient>
+         
+         <linearGradient id="vase-glass" x1="0" x2="1" y1="0" y2="0">
+             <stop offset="0%" stop-color="#d0e8f5" stop-opacity="0.25" />
+             <stop offset="25%" stop-color="#ffffff" stop-opacity="0.1" />
+             <stop offset="50%" stop-color="#f0f8ff" stop-opacity="0.08" />
+             <stop offset="75%" stop-color="#ffffff" stop-opacity="0.12" />
+             <stop offset="100%" stop-color="#d0e8f5" stop-opacity="0.2" />
+         </linearGradient>
+         
+         <radialGradient id="dewdrop-grad" cx="30%" cy="30%" r="70%">
+             <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9" />
+             <stop offset="50%" stop-color="#e0f7ff" stop-opacity="0.6" />
+             <stop offset="100%" stop-color="#b0e0ff" stop-opacity="0.3" />
+         </radialGradient>
+         
+         <!-- Simple Shadow (Optimized) -->
+         <filter id="soft-shadow" x="-20%" y="-20%" width="140%" height="140%">
+             <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.1"/>
+         </filter>
+         
+         <!-- Removed complex Glow filter -->
+ 
+          <clipPath id="vase-clip">
+             <path d="${vasePath}" />
+          </clipPath>
+       </defs>
+ 
+       <!-- Vase Shadow -->
+       <ellipse cx="${vaseX}" cy="${vaseY + 5}" rx="${vaseWidth / 2 + 25}" ry="18" fill="#000" opacity="0.12" />
+ 
+       <g filter="url(#soft-shadow)">${foliageBack.join('')}</g>
+ 
+       <g>
+         <path d="${vasePath}" fill="url(#vase-glass)" stroke="rgba(200,220,240,0.4)" stroke-width="1.5" />
+         <g clip-path="url(#vase-clip)">${stemsInside.join('')}</g>
+         <path d="${waterPath}" fill="url(#water-grad)" clip-path="url(#vase-clip)" />
+         <path d="M ${vaseX - vaseWidth / 2 + 5} ${vaseY - vaseHeight} Q ${vaseX} ${vaseY - vaseHeight - 3} ${vaseX + vaseWidth / 2 - 5} ${vaseY - vaseHeight}" stroke="rgba(255,255,255,0.6)" stroke-width="2" fill="none" stroke-linecap="round"/>
+         <path d="M ${vaseX - vaseWidth / 2 + 12} ${vaseY - vaseHeight + 15} Q ${vaseX - vaseWidth / 2 + 5} ${vaseY - vaseHeight / 2} ${vaseX - vaseWidth / 2 + 18} ${vaseY - 25}" stroke="rgba(255,255,255,0.5)" stroke-width="3" fill="none" stroke-linecap="round"/>
+         <path d="M ${vaseX + vaseWidth / 2 - 20} ${vaseY - vaseHeight + 25} L ${vaseX + vaseWidth / 2 - 15} ${vaseY - 35}" stroke="rgba(255,255,255,0.25)" stroke-width="5" fill="none" stroke-linecap="round"/>
+       </g>
+       
+       <path d="M ${vaseX - vaseWidth / 2 + 15} ${vaseY - vaseHeight + 20} Q ${vaseX - vaseWidth / 2 + 10} ${vaseY - vaseHeight / 2} ${vaseX - vaseWidth / 2 + 20} ${vaseY - 30}" stroke="rgba(255,255,255,0.5)" stroke-width="4" fill="none" stroke-linecap="round"/>
+       
+       ${ribbon}
+       <g>${stemsAbove.join('')}</g>
+       <g>${fillerLayer.join('')}</g>
+       <g>${foliageFront.join('')}</g>
+       
+       <!-- Main Blooms (No watercolor filter) -->
+       <g filter="url(#soft-shadow)">${bloomingFlowers.join('')}</g>
+       
+       <!-- Dewdrops -->
+       <g>${dewdrops.join('')}</g>
+       
+       <!-- Fauna -->
+       <g>${faunaLayer.join('')}</g>
+       
+     </svg>
+   `;
 
 
   return {

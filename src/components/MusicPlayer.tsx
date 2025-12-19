@@ -7,7 +7,8 @@ export const MusicPlayer: React.FC = () => {
     const iframeRef = useRef<HTMLIFrameElement>(null);
 
     // YouTube Video ID for "Christmas Instrumental" (O Holy Night / Peaceful)
-    const VIDEO_ID = "_j37WnwmzSI";
+    // YouTube Video ID for "Jingle Bells" (Classic Instrumental) - User Specified
+    const VIDEO_ID = "R1gskElaLNo";
 
     useEffect(() => {
         // Initialize player state

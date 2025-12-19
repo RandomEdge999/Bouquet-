@@ -32,36 +32,31 @@ export const playScissorSound = async (): Promise<void> => {
 
     const now = ctx.currentTime;
 
-    // High-pitched metallic oscillator
-    const osc1 = ctx.createOscillator();
-    const osc2 = ctx.createOscillator();
-    const gain = ctx.createGain();
-    const filter = ctx.createBiquadFilter();
+    // Updated to sound like a soft "snip" (just purified noise, no harsh tones)
+    const noiseBuffer = createNoiseBuffer(0.1);
+    const noise = ctx.createBufferSource();
+    noise.buffer = noiseBuffer;
 
-    osc1.type = 'square';
-    osc1.frequency.setValueAtTime(2400, now);
-    osc1.frequency.exponentialRampToValueAtTime(800, now + 0.05);
+    // Filters for "crisp" but soft sound
+    const noiseFilter = ctx.createBiquadFilter();
+    noiseFilter.type = 'highpass';
+    noiseFilter.frequency.setValueAtTime(2000, now); // Remove rumble
+    noiseFilter.Q.value = 0.5;
 
-    osc2.type = 'sawtooth';
-    osc2.frequency.setValueAtTime(3200, now);
-    osc2.frequency.exponentialRampToValueAtTime(600, now + 0.06);
+    // Soft Envelope
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.0, now);
+    noiseGain.gain.linearRampToValueAtTime(0.3, now + 0.02); // Soft attack
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1); // Quick fade
 
-    filter.type = 'highpass';
-    filter.frequency.value = 1000;
-    filter.Q.value = 5;
+    // Connections
+    noise.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(ctx.destination);
 
-    gain.gain.setValueAtTime(0.15, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
-
-    osc1.connect(filter);
-    osc2.connect(filter);
-    filter.connect(gain);
-    gain.connect(ctx.destination);
-
-    osc1.start(now);
-    osc2.start(now);
-    osc1.stop(now + 0.1);
-    osc2.stop(now + 0.1);
+    // Play
+    noise.start(now);
+    noise.stop(now + 0.15);
 };
 
 /**
