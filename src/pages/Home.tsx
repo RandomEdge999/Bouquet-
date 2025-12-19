@@ -5,6 +5,7 @@ import { SnowEffect } from '../components/SnowEffect';
 import { MusicPlayer } from '../components/MusicPlayer';
 import { useSearchParams } from 'react-router-dom';
 import { BouquetCanvas } from '../components/BouquetCanvas';
+import { BouquetReveal } from '../components/BouquetReveal';
 import { Controls } from '../components/Controls';
 import { Header } from '../components/Header';
 import { Layout } from '../components/Layout';
@@ -18,31 +19,55 @@ export const Home: React.FC = () => {
     const [data, setData] = useState<BouquetData | null>(null);
     const [message, setMessage] = useState<{ text: string, signature: string, subject: string } | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isRevealing, setIsRevealing] = useState(false);
+    const [isFirstLoad, setIsFirstLoad] = useState(true);
     const bouquetRef = useRef<HTMLDivElement>(null);
 
     // Initial load
     useEffect(() => {
         const s = searchParams.get('seed') || Math.random().toString(36).substring(7);
-        generate(s);
+        generate(s, true);
+    }, []);
+
+    // Handle seed changes from URL
+    useEffect(() => {
+        const currentSeed = searchParams.get('seed');
+        if (currentSeed && data && currentSeed !== data.seed) {
+            generate(currentSeed, false);
+        }
     }, [searchParams]);
 
-    const generate = (seed: string) => {
+    const generate = (seed: string, skipReveal: boolean = false) => {
         setLoading(true);
-        setTimeout(() => {
-            const bouquet = generateBouquet(seed);
-            const msg = generateMessage(seed);
 
-            setData(bouquet);
-            setMessage(msg);
-            setSearchParams({ seed });
-            setLoading(false);
-        }, 500);
+        // Generate the bouquet data
+        const bouquet = generateBouquet(seed);
+        const msg = generateMessage(seed);
+
+        setData(bouquet);
+        setMessage(msg);
+        setSearchParams({ seed });
+        setLoading(false);
+
+        // Trigger reveal animation for manual generates
+        // skipReveal controls whether to show reveal (true on first load)
+        if (!skipReveal) {
+            setIsRevealing(true);
+        }
+
+        if (isFirstLoad) {
+            setIsFirstLoad(false);
+        }
     };
 
     const handleGenerate = useCallback(() => {
         const newSeed = Math.random().toString(36).substring(7);
-        setSearchParams({ seed: newSeed });
-    }, [setSearchParams]);
+        generate(newSeed, false);
+    }, []);
+
+    const handleRevealComplete = useCallback(() => {
+        setIsRevealing(false);
+    }, []);
 
     if (!data || !message) return null;
 
@@ -54,54 +79,60 @@ export const Home: React.FC = () => {
             <LoveParticles />
 
             {/* Main Content Container - Bouquet anchored to bottom */}
-            <div className="fixed inset-0 w-full h-screen h-[100dvh] overflow-hidden flex flex-col">
+            <div className="fixed inset-0 w-full h-screen h-[100dvh] overflow-visible flex flex-col">
 
                 {/* Spacer to push bouquet down */}
                 <div className="flex-1" />
 
                 {/* Bouquet Display Area - Always anchored to bottom */}
                 <div className="relative flex items-end justify-center">
-                    <AnimatePresence mode='wait'>
-                        {!loading && (
-                            <motion.div
-                                key={data.seed}
-                                initial={{ opacity: 0, scale: 0.9, y: 30 }}
-                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 1.02, filter: "blur(8px)" }}
-                                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                                className="relative flex flex-col items-center"
-                                style={{
-                                    // Anchor vase to bottom
-                                    marginBottom: 'calc(env(safe-area-inset-bottom, 0px) + 0.5rem)',
-                                    transformOrigin: 'bottom center'
-                                }}
-                            >
-                                {/* Contact Shadow - Grounding the vase */}
+                    <BouquetReveal
+                        isRevealing={isRevealing}
+                        onRevealComplete={handleRevealComplete}
+                    >
+                        <AnimatePresence mode='wait'>
+                            {!loading && (
                                 <motion.div
-                                    initial={{ opacity: 0, scale: 0.5 }}
-                                    animate={{ opacity: 0.25, scale: 1 }}
-                                    transition={{ delay: 0.3, duration: 0.8 }}
-                                    className="absolute -bottom-1 w-20 sm:w-28 md:w-48 lg:w-56 h-2 sm:h-2 md:h-5 lg:h-6 rounded-[100%]"
+                                    key={data.seed}
+                                    initial={isFirstLoad ? { opacity: 0, scale: 0.9, y: 30 } : false}
+                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 1.02, filter: "blur(8px)" }}
+                                    transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                                    className="relative flex flex-col items-center"
                                     style={{
-                                        background: 'radial-gradient(ellipse, rgba(0,0,0,0.3) 0%, transparent 70%)'
-                                    }}
-                                />
-
-                                {/* The Bouquet Container - BIGGER on mobile */}
-                                <div
-                                    ref={bouquetRef}
-                                    className="relative z-10"
-                                    style={{
-                                        // Increased size for mobile - bouquet is the star!
-                                        width: 'min(55vh, 85vw, 450px)',
-                                        height: 'min(77vh, 119vw, 630px)',
+                                        // Anchor vase to bottom
+                                        marginBottom: 'calc(env(safe-area-inset-bottom, 0px) + 0.5rem)',
+                                        transformOrigin: 'bottom center'
                                     }}
                                 >
-                                    <BouquetCanvas svgContent={data.svg} seed={data.seed} />
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
+                                    {/* Contact Shadow - Grounding the vase */}
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.5 }}
+                                        animate={{ opacity: 0.25, scale: 1 }}
+                                        transition={{ delay: 0.3, duration: 0.8 }}
+                                        className="absolute -bottom-1 w-20 sm:w-28 md:w-48 lg:w-56 h-2 sm:h-2 md:h-5 lg:h-6 rounded-[100%]"
+                                        style={{
+                                            background: 'radial-gradient(ellipse, rgba(0,0,0,0.3) 0%, transparent 70%)'
+                                        }}
+                                    />
+
+                                    {/* The Bouquet Container - BIGGER, with overflow visible to prevent clipping */}
+                                    <div
+                                        ref={bouquetRef}
+                                        className="relative z-10 overflow-visible"
+                                        style={{
+                                            // Increased size for mobile - bouquet is the star!
+                                            // Made slightly smaller to give more breathing room from edges
+                                            width: 'min(52vh, 80vw, 420px)',
+                                            height: 'min(73vh, 112vw, 590px)',
+                                        }}
+                                    >
+                                        <BouquetCanvas svgContent={data.svg} seed={data.seed} />
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </BouquetReveal>
 
                     {/* Loading State */}
                     {loading && (
@@ -122,7 +153,7 @@ export const Home: React.FC = () => {
             <MusicPlayer />
 
             {/* Note Card - Always visible, positioned appropriately */}
-            {message && !loading && (
+            {message && !loading && !isRevealing && (
                 <NoteCard
                     message={message.text}
                     signature={message.signature}

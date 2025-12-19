@@ -3,7 +3,7 @@ import React, { type ReactNode } from 'react';
 // Premium Layout Wrapper with Table Surface
 export const Layout: React.FC<{ children: ReactNode }> = ({ children }) => {
     return (
-        <div className="relative w-full min-h-screen min-h-[100dvh] overflow-hidden text-stone-800 font-sans selection:bg-rose-100">
+        <div className="relative w-full min-h-screen min-h-[100dvh] overflow-visible text-stone-800 font-sans selection:bg-rose-100">
             {/* 
                 Background is set via CSS on body - we don't add any solid backgrounds here
                 that would cover it up. All overlays must be transparent/gradients only.

@@ -138,8 +138,8 @@ export const generateBouquet = (seed: string): BouquetData => {
     else foliageFront.push(el);
   }
 
-  // 2. Generate Main Flowers & Stems
-  const flowerCount = 22 + Math.floor(prng() * 10); // Dense, luxurious
+  // 2. Generate Main Flowers & Stems - LUXURIOUS arrangement
+  const flowerCount = 28 + Math.floor(prng() * 14); // More flowers for grandiose look
 
   for (let i = 0; i < flowerCount; i++) {
     // Phyllotaxis distribution for natural arrangement
@@ -157,11 +157,11 @@ export const generateBouquet = (seed: string): BouquetData => {
 
     if (distRatio > 0.65) {
       type = prng() > 0.5 ? 'daisy' : 'tulip';
-      scale = 40 + prng() * 25;
+      scale = 45 + prng() * 30; // Slightly larger edge flowers
     } else {
       type = 'rose';
-      scale = 70 + prng() * 45; // Bigger roses in center
-      if (prng() > 0.85) type = 'tulip';
+      scale = 80 + prng() * 55; // BIGGER roses in center for grandeur
+      if (prng() > 0.88) type = 'tulip';
     }
 
     const color = palette.flowerColors[Math.floor(prng() * palette.flowerColors.length)];
@@ -183,13 +183,43 @@ export const generateBouquet = (seed: string): BouquetData => {
     bloomingFlowers.push(generateFlower(seed + i, type, color, scale, x, y));
   }
 
-  // 3. Add Baby's Breath filler (delicate white flowers)
-  for (let i = 0; i < 5; i++) {
+  // 3. Add Baby's Breath filler (delicate white flowers) - MORE for luxury
+  for (let i = 0; i < 8; i++) {
     const angle = prng() * Math.PI * 2;
-    const r = 60 + prng() * 80;
+    const r = 50 + prng() * 100;
     const x = bloomCx + Math.cos(angle) * r;
     const y = bloomCy + Math.sin(angle) * r * 0.6;
-    fillerLayer.push(generateBabysBreath(x, y, 25, 8 + Math.floor(prng() * 8), prng));
+    fillerLayer.push(generateBabysBreath(x, y, 30, 10 + Math.floor(prng() * 10), prng));
+  }
+
+  // 3.5. Add dewdrops on flowers for premium effect
+  const dewdrops: string[] = [];
+  for (let i = 0; i < 12; i++) {
+    const angle = prng() * Math.PI * 2;
+    const r = 30 + prng() * 120;
+    const dx = bloomCx + Math.cos(angle) * r;
+    const dy = bloomCy + Math.sin(angle) * r * 0.7;
+    const size = 2 + prng() * 3;
+    dewdrops.push(`
+      <ellipse cx="${dx}" cy="${dy}" rx="${size}" ry="${size * 0.7}" 
+        fill="url(#dewdrop-grad)" opacity="${0.6 + prng() * 0.3}"/>
+    `);
+  }
+
+  // 3.6. Add sparkle effects for magical touch
+  const sparkles: string[] = [];
+  for (let i = 0; i < 8; i++) {
+    const angle = prng() * Math.PI * 2;
+    const r = 40 + prng() * 100;
+    const sx = bloomCx + Math.cos(angle) * r;
+    const sy = bloomCy + Math.sin(angle) * r * 0.6 - 20;
+    const size = 4 + prng() * 6;
+    sparkles.push(`
+      <g transform="translate(${sx}, ${sy}) rotate(${prng() * 45})">
+        <path d="M 0 ${-size} L ${size * 0.3} 0 L 0 ${size} L ${-size * 0.3} 0 Z" fill="#fff" opacity="${0.4 + prng() * 0.4}"/>
+        <path d="M ${-size} 0 L 0 ${size * 0.3} L ${size} 0 L 0 ${-size * 0.3} Z" fill="#fff" opacity="${0.4 + prng() * 0.4}"/>
+      </g>
+    `);
   }
 
   // 4. Generate Ribbon (at the neck of the vase)
@@ -220,7 +250,7 @@ export const generateBouquet = (seed: string): BouquetData => {
 
   bloomingFlowers.reverse();
 
-  // SVG Structure with enhanced visuals
+  // SVG Structure with enhanced visuals - PREMIUM single vase design
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet">
       <defs>
@@ -228,22 +258,39 @@ export const generateBouquet = (seed: string): BouquetData => {
              <feGaussianBlur in="SourceGraphic" stdDeviation="2" />
         </filter>
         <filter id="glass-specular">
-            <feSpecularLighting result="specOut" specularExponent="25" lighting-color="#ffffff">
-                <fePointLight x="${width / 2}" y="${height / 2}" z="250"/>
+            <feSpecularLighting result="specOut" specularExponent="30" lighting-color="#ffffff">
+                <fePointLight x="${width / 2 - 50}" y="${height / 2}" z="200"/>
             </feSpecularLighting>
             <feComposite in="SourceGraphic" in2="specOut" operator="arithmetic" k1="0" k2="1" k3="1" k4="0"/>
         </filter>
         <linearGradient id="water-grad" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stop-color="#b5e2ff" stop-opacity="0.35" />
-            <stop offset="100%" stop-color="#7ec8e3" stop-opacity="0.65" />
+            <stop offset="0%" stop-color="#d4f1f9" stop-opacity="0.4" />
+            <stop offset="50%" stop-color="#a8daec" stop-opacity="0.55" />
+            <stop offset="100%" stop-color="#7ec8e3" stop-opacity="0.7" />
         </linearGradient>
+        <!-- SINGLE elegant vase gradient -->
         <linearGradient id="vase-glass" x1="0" x2="1" y1="0" y2="0">
-            <stop offset="0%" stop-color="white" stop-opacity="0.2" />
-            <stop offset="50%" stop-color="white" stop-opacity="0.05" />
-            <stop offset="100%" stop-color="white" stop-opacity="0.15" />
+            <stop offset="0%" stop-color="#d0e8f5" stop-opacity="0.25" />
+            <stop offset="25%" stop-color="#ffffff" stop-opacity="0.1" />
+            <stop offset="50%" stop-color="#f0f8ff" stop-opacity="0.08" />
+            <stop offset="75%" stop-color="#ffffff" stop-opacity="0.12" />
+            <stop offset="100%" stop-color="#d0e8f5" stop-opacity="0.2" />
         </linearGradient>
+        <!-- Dewdrop gradient for premium effect -->
+        <radialGradient id="dewdrop-grad" cx="30%" cy="30%" r="70%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9" />
+            <stop offset="50%" stop-color="#e0f7ff" stop-opacity="0.6" />
+            <stop offset="100%" stop-color="#b0e0ff" stop-opacity="0.3" />
+        </radialGradient>
         <filter id="soft-shadow">
             <feDropShadow dx="0" dy="4" stdDeviation="8" flood-opacity="0.15"/>
+        </filter>
+        <filter id="glow">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+            <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
         </filter>
          <clipPath id="vase-clip">
             <path d="${vasePath}" />
@@ -256,19 +303,34 @@ export const generateBouquet = (seed: string): BouquetData => {
       <!-- Rear Foliage -->
       <g filter="url(#soft-shadow)">${foliageBack.join('')}</g>
 
-      <!-- Vase Back (Glass tint) -->
-      <path d="${vasePath}" fill="url(#vase-glass)" stroke="none" />
-      
-      <!-- Stems Inside Vase -->
-      <g clip-path="url(#vase-clip)">
-         ${stemsInside.join('')}
+      <!-- SINGLE CLEAN VASE with proper glass effect -->
+      <g>
+        <!-- Main glass body -->
+        <path d="${vasePath}" fill="url(#vase-glass)" stroke="rgba(200,220,240,0.4)" stroke-width="1.5" />
+        
+        <!-- Stems Inside Vase (clipped) -->
+        <g clip-path="url(#vase-clip)">
+           ${stemsInside.join('')}
+        </g>
+        
+        <!-- Water -->
+        <path d="${waterPath}" fill="url(#water-grad)" clip-path="url(#vase-clip)" />
+        
+        <!-- Glass rim highlight -->
+        <path d="M ${vaseX - vaseWidth / 2 + 5} ${vaseY - vaseHeight} 
+                 Q ${vaseX} ${vaseY - vaseHeight - 3} ${vaseX + vaseWidth / 2 - 5} ${vaseY - vaseHeight}" 
+              stroke="rgba(255,255,255,0.6)" stroke-width="2" fill="none" stroke-linecap="round"/>
+        
+        <!-- Left edge highlight -->
+        <path d="M ${vaseX - vaseWidth / 2 + 12} ${vaseY - vaseHeight + 15} 
+                 Q ${vaseX - vaseWidth / 2 + 5} ${vaseY - vaseHeight / 2} ${vaseX - vaseWidth / 2 + 18} ${vaseY - 25}" 
+              stroke="rgba(255,255,255,0.5)" stroke-width="3" fill="none" stroke-linecap="round"/>
+        
+        <!-- Right subtle reflection -->
+        <path d="M ${vaseX + vaseWidth / 2 - 20} ${vaseY - vaseHeight + 25} 
+                 L ${vaseX + vaseWidth / 2 - 15} ${vaseY - 35}" 
+              stroke="rgba(255,255,255,0.25)" stroke-width="5" fill="none" stroke-linecap="round"/>
       </g>
-      
-      <!-- Water -->
-      <path d="${waterPath}" fill="url(#water-grad)" clip-path="url(#vase-clip)" />
-
-      <!-- Vase Front (Crystal Glass Effect) -->
-      <path d="${vasePath}" stroke="rgba(255,255,255,0.7)" stroke-width="2.5" fill="url(#vase-glass)" filter="url(#glass-specular)" />
       
       <!-- Glass Highlight -->
       <path d="M ${vaseX - vaseWidth / 2 + 15} ${vaseY - vaseHeight + 20} 
@@ -289,6 +351,12 @@ export const generateBouquet = (seed: string): BouquetData => {
       
       <!-- Main Blooms -->
       <g filter="url(#soft-shadow)">${bloomingFlowers.join('')}</g>
+      
+      <!-- Dewdrops for premium effect -->
+      <g filter="url(#glow)">${dewdrops.join('')}</g>
+      
+      <!-- Sparkles for magical touch -->
+      <g>${sparkles.join('')}</g>
       
       <!-- Fauna (Butterflies/Ladybugs) -->
       <g>${faunaLayer.join('')}</g>
