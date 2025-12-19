@@ -52,15 +52,16 @@ export const SnowEffect: React.FC = () => {
 
     useEffect(() => {
         const flakes: Snowflake[] = [];
-        for (let i = 0; i < 60; i++) {
+        // OPTIMIZATION: Reduced from 60 to 35 for smoother mobile performance
+        for (let i = 0; i < 35; i++) {
             flakes.push({
                 id: i,
                 x: Math.random() * 100,
-                size: i % 3 === 0 ? 12 + Math.random() * 10 : 3 + Math.random() * 5,
-                duration: 10 + Math.random() * 15,
-                delay: Math.random() * 12,
-                drift: (Math.random() - 0.5) * 80,
-                opacity: 0.4 + Math.random() * 0.5
+                size: i % 3 === 0 ? 12 + Math.random() * 8 : 3 + Math.random() * 4,
+                duration: 15 + Math.random() * 15, // Slower execution = less main thread work
+                delay: Math.random() * 10,
+                drift: (Math.random() - 0.5) * 50, // Reduced drift range
+                opacity: 0.3 + Math.random() * 0.4
             });
         }
         setSnowflakes(flakes);
@@ -75,6 +76,7 @@ export const SnowEffect: React.FC = () => {
                     style={{
                         left: `${flake.x}%`,
                         top: '-30px',
+                        willChange: 'transform' // GPU Hint
                     }}
                     animate={{
                         y: [0, typeof window !== 'undefined' ? window.innerHeight + 50 : 1000],

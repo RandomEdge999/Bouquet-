@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { LoveParticles } from '../components/LoveParticles';
-import { AmbientEffects } from '../components/AmbientEffects';
+// AmbientEffects moved to Layout
 import { SnowEffect } from '../components/SnowEffect';
 import { MusicPlayer } from '../components/MusicPlayer';
 import { useSearchParams } from 'react-router-dom';
@@ -74,9 +74,9 @@ export const Home: React.FC = () => {
     if (!data || !message) return null;
 
     return (
-        <Layout>
+        <Layout showClouds={loading || isRevealing}>
             <Header />
-            <AmbientEffects />
+            {/* AmbientEffects handled in Layout */}
             <SnowEffect />
             <LoveParticles />
 
@@ -98,13 +98,14 @@ export const Home: React.FC = () => {
                                     key={data.seed}
                                     initial={isFirstLoad ? { opacity: 0, scale: 0.9, y: 30 } : false}
                                     animate={{ opacity: 1, scale: 1, y: 0 }}
-                                    exit={{ opacity: 0, scale: 1.02, filter: "blur(8px)" }}
+                                    exit={{ opacity: 0, scale: 1.02 }}
                                     transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
                                     className="relative flex flex-col items-center"
                                     style={{
                                         // Anchor vase to bottom
                                         marginBottom: 'calc(env(safe-area-inset-bottom, 0px) + 0.5rem)',
-                                        transformOrigin: 'bottom center'
+                                        transformOrigin: 'bottom center',
+                                        willChange: 'transform, opacity'
                                     }}
                                 >
                                     {/* Contact Shadow - Grounding the vase */}
@@ -123,10 +124,9 @@ export const Home: React.FC = () => {
                                         ref={bouquetRef}
                                         className="relative z-10 overflow-visible"
                                         style={{
-                                            // Increased size for mobile - bouquet is the star!
-                                            // Made slightly smaller to give more breathing room from edges
-                                            width: 'min(52vh, 80vw, 420px)',
-                                            height: 'min(73vh, 112vw, 590px)',
+                                            // Increased size for mobile, and MUCH larger max-width for desktop
+                                            width: 'min(62vh, 85vw, 650px)',
+                                            height: 'min(82vh, 115vw, 850px)',
                                         }}
                                     >
                                         <BouquetCanvas svgContent={data.svg} seed={data.seed} />
@@ -162,13 +162,13 @@ export const Home: React.FC = () => {
                     transition={{ delay: 0.8 }}
                     onClick={() => setIsNoteOpen(!isNoteOpen)}
                     className="
+                        glass-ios
                         flex items-center gap-2
                         pl-3 pr-4 py-2 rounded-full
-                        bg-white/40 backdrop-blur-md
-                        hover:bg-white/60 transition-all
-                        border border-white/50 hover:border-white/70
-                        shadow-sm hover:shadow-md
+                        transition-all
+                        hover:scale-[1.02] active:scale-[0.98]
                         group
+                        text-stone-700
                     "
                 >
                     <Mail size={16} className="text-stone-600 group-hover:text-rose-600 transition-colors" />
@@ -187,6 +187,7 @@ export const Home: React.FC = () => {
             {/* Note Card Modal/Overlay */}
             {message && !loading && !isRevealing && (
                 <NoteCard
+                    subject={message.subject}
                     message={message.text}
                     signature={message.signature}
                     isOpen={isNoteOpen}

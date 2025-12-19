@@ -101,73 +101,163 @@ const main = async () => {
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <style>
-            @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Great+Vibes&family=Lato:wght@300;400&display=swap');
-            body { margin: 0; padding: 0; background-color: #f4f1ea; font-family: 'Lato', 'Helvetica', sans-serif; -webkit-font-smoothing: antialiased; }
-            .wrapper { width: 100%; table-layout: fixed; background-color: #f4f1ea; padding-bottom: 40px; }
-            .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; box-shadow: 0 20px 50px rgba(0,0,0,0.08); border-radius: 4px; overflow: hidden; position: relative; }
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@1,600&display=swap');
             
-            /* Golden Frame Effect */
-            .gold-frame { border: 8px solid #ffffff; outline: 1px solid #eaddcf; margin: 10px; }
-            .inner-content { padding: 40px 30px; border: 1px solid ${goldColor}; margin: 5px; position: relative; }
+            body { 
+                margin: 0; 
+                padding: 0; 
+                background-color: #f2f2f7; /* iOS System Gray 6 */
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                -webkit-font-smoothing: antialiased;
+                color: #1c1c1e;
+            }
             
-            /* Typography */
-            .date { font-family: 'Playfair Display', Georgia, serif; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: #a8a29e; text-align: center; margin-bottom: 15px; }
-            .main-title { font-family: 'Playfair Display', Georgia, serif; font-size: 34px; line-height: 1.1; color: ${accentColor}; text-align: center; margin: 0 0 30px 0; font-weight: 700; }
+            .wrapper { 
+                width: 100%; 
+                background-color: #f2f2f7; 
+                padding: 40px 0; 
+            }
             
-            /* Polaroid Image Frame */
-            .image-frame { background-color: #ffffff; padding: 15px 15px 40px 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.12); transform: rotate(-1deg); margin: 20px auto 40px; max-width: 90%; width: 100%; border: 1px solid #eee; }
-            .bouquet-img { width: 100%; display: block; }
-            
-            /* Decorative */
-            .divider { width: 40px; height: 2px; background-color: ${goldColor}; margin: 30px auto; opacity: 0.6; }
-            .quote { font-family: 'Playfair Display', Georgia, serif; font-style: italic; font-size: 16px; color: #888; text-align: center; margin-bottom: 40px; }
-            
-            /* Message Body */
-            .message-body { font-family: 'Playfair Display', Georgia, serif; font-size: 19px; line-height: 1.8; color: ${textColor}; padding: 0 10px; text-align: center; white-space: pre-line; }
-            
-            /* Signature */
-            .signature { font-family: 'Great Vibes', 'Brush Script MT', cursive; font-size: 32px; color: ${accentColor}; text-align: right; margin-top: 40px; padding-right: 20px; }
-            
+            .card { 
+                max-width: 600px; 
+                margin: 0 auto; 
+                background-color: #ffffff; 
+                border-radius: 28px; 
+                overflow: hidden; 
+                box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            }
+
+            /* Header Section simulating Glass header */
+            .header {
+                padding: 40px 40px 20px;
+                text-align: center;
+                background: linear-gradient(180deg, #ffffff 0%, #f8f8fa 100%);
+                border-bottom: 1px solid rgba(0,0,0,0.05);
+            }
+
+            .date {
+                font-size: 13px;
+                letter-spacing: 0.5px;
+                text-transform: uppercase;
+                color: #8e8e93; /* iOS Label Gray */
+                font-weight: 600;
+                margin-bottom: 10px;
+            }
+
+            .subject {
+                font-family: 'Playfair Display', serif;
+                font-style: italic;
+                font-size: 32px;
+                font-weight: 600;
+                color: #1c1c1e;
+                margin: 0;
+                line-height: 1.2;
+            }
+
+            /* Image Section */
+            .image-container {
+                background-color: #ffffff;
+                padding: 20px;
+                text-align: center;
+            }
+
+            .bouquet-img {
+                width: 100%;
+                max-width: 500px;
+                height: auto;
+                border-radius: 16px;
+                box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+            }
+
+            /* Message Section */
+            .message-container {
+                padding: 10px 40px 50px;
+                text-align: left;
+                background-color: #ffffff;
+            }
+
+            .message-text {
+                font-size: 17px;
+                line-height: 1.6;
+                color: #3a3a3c;
+                white-space: pre-line;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            }
+
+            .signature-block {
+                margin-top: 40px;
+                padding-top: 20px;
+                border-top: 1px solid #f2f2f7;
+            }
+
+            .signature-text {
+                font-family: 'Playfair Display', serif;
+                font-style: italic;
+                font-size: 24px;
+                color: #1c1c1e;
+            }
+
+            /* iOS Button Style */
+            .action-btn {
+                display: inline-block;
+                background-color: #007aff;
+                color: #ffffff !important;
+                text-decoration: none;
+                padding: 12px 24px;
+                border-radius: 99px;
+                font-size: 15px;
+                font-weight: 600;
+                margin-top: 20px;
+            }
+
             /* Footer */
-            .footer { background-color: #f4f1ea; padding: 30px; text-align: center; font-size: 11px; color: #9ca3af; letter-spacing: 1px; text-transform: uppercase; }
-            .btn { text-decoration: none; color: ${goldColor}; border-bottom: 1px solid ${goldColor}; padding-bottom: 2px; transition: opacity 0.3s; }
-            .btn:hover { opacity: 0.7; }
+            .footer {
+                text-align: center;
+                padding: 30px;
+                font-size: 12px;
+                color: #aeaeb2;
+            }
+            
+            .footer a {
+                color: #aeaeb2;
+                text-decoration: none;
+            }
         </style>
     </head>
     <body>
         <div class="wrapper">
-            <div style="height: 30px;"></div>
-            <div class="container">
-                <div class="gold-frame">
-                    <div class="inner-content">
-                        <!-- Header -->
-                        <div class="date">${dateStr}</div>
-                        <h1 class="main-title">${message.subject}</h1>
-                        
-                        <!-- Image -->
-                        <div class="image-frame">
-                            <img src="cid:bouquet-daily" alt="Bouquet" class="bouquet-img" />
-                        </div>
-                        
-                        <!-- Divider -->
-                        <div class="divider"></div>
-                        
-                        <!-- Message -->
-                        <div class="message-body">
-                            ${message.text}
-                        </div>
-                        
-                        <!-- Signature -->
-                        <div class="signature">
-                            - ${message.signature}
-                        </div>
+            <div class="card">
+                <!-- Header -->
+                <div class="header">
+                    <div class="date">${dateStr}</div>
+                    <h1 class="subject">${message.subject}</h1>
+                </div>
+
+                <!-- Main Image -->
+                <div class="image-container">
+                    <img src="cid:bouquet-daily" alt="Daily Bouquet" class="bouquet-img" />
+                </div>
+
+                <!-- Content -->
+                <div class="message-container">
+                    <div class="message-text">
+                        ${message.text}
+                    </div>
+
+                    <div class="signature-block">
+                        <div class="signature-text">${message.signature} ❤️</div>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 30px;">
+                        <a href="${env.SITE_URL}?seed=${seed}" class="action-btn">View in App</a>
                     </div>
                 </div>
             </div>
-            
-            <!-- Minimal Footer -->
+
+            <!-- Footer -->
             <div class="footer">
-                Made with ❤️ for Venooo • <a href="${env.SITE_URL}?seed=${seed}" class="btn">View in Browser</a>
+                Sent via Venooo (Aleem's Edition) <br/>
+                <a href="${env.SITE_URL}">Unsubscribe</a>
             </div>
         </div>
     </body>

@@ -1,11 +1,12 @@
-import { generatePalette } from './palette';
+import { generatePalette, type Palette } from './palette';
 import { generateFlower, type FlowerType } from './flowers';
 import { getPrng } from '../seed';
+import { adjustColor } from '../utils/colors';
 
 export interface BouquetData {
   svg: string;
   seed: string;
-  palette: any;
+  palette: Palette;
 }
 
 // Generate an elegant ribbon bow SVG
@@ -51,14 +52,7 @@ const generateRibbon = (x: number, y: number, color: string, prng: () => number)
   `;
 };
 
-// Adjust color brightness
-const adjustColor = (hex: string, amount: number): string => {
-  const num = parseInt(hex.replace('#', ''), 16);
-  const r = Math.min(255, Math.max(0, (num >> 16) + amount));
-  const g = Math.min(255, Math.max(0, ((num >> 8) & 0x00FF) + amount));
-  const b = Math.min(255, Math.max(0, (num & 0x0000FF) + amount));
-  return `#${(1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1)}`;
-};
+// Adjust color brightness utility moved to utils/colors.ts
 
 // Generate baby's breath filler flowers
 const generateBabysBreath = (cx: number, cy: number, radius: number, count: number, prng: () => number): string => {
@@ -84,24 +78,28 @@ export const generateBouquet = (seed: string): BouquetData => {
   const width = 600;
   const height = 800;
 
-  // -- VASE GENERATION --
-  // Elegant crystal-like vase
-  const vaseWidth = 140;
-  const vaseHeight = 220;
+  // -- VASE GENERATION (Randomized Structure) --
+  // Randomize dimensions for uniqueness
+  const vaseWidth = 130 + prng() * 40; // 130-170
+  const vaseHeight = 210 + prng() * 40; // 210-250
   const vaseX = width / 2;
-  const vaseY = 560; // Base position slightly lower
+  const vaseY = 580; // Slightly lower anchor
 
-  // Glass path with curved elegant shape
+  // Randomize shape curvature
+  const curve1 = 10 + prng() * 20;
+  const curve2 = 10 + prng() * 20;
+
+  // Glass path with unique shape per seed
   const vasePath = `
     M ${vaseX - vaseWidth / 2} ${vaseY - vaseHeight} 
-    Q ${vaseX - vaseWidth / 2 - 15} ${vaseY - vaseHeight / 2} ${vaseX - vaseWidth / 2 + 10} ${vaseY} 
+    Q ${vaseX - vaseWidth / 2 - curve1} ${vaseY - vaseHeight / 2} ${vaseX - vaseWidth / 2 + 10} ${vaseY} 
     L ${vaseX + vaseWidth / 2 - 10} ${vaseY}
-    Q ${vaseX + vaseWidth / 2 + 15} ${vaseY - vaseHeight / 2} ${vaseX + vaseWidth / 2} ${vaseY - vaseHeight}
+    Q ${vaseX + vaseWidth / 2 + curve2} ${vaseY - vaseHeight / 2} ${vaseX + vaseWidth / 2} ${vaseY - vaseHeight}
     Z
   `;
 
   // Water level
-  const waterHeight = vaseHeight * 0.65;
+  const waterHeight = vaseHeight * (0.6 + prng() * 0.15);
   const waterPath = `
     M ${vaseX - vaseWidth / 2 + 5} ${vaseY - waterHeight}
     L ${vaseX + vaseWidth / 2 - 5} ${vaseY - waterHeight}
@@ -111,7 +109,6 @@ export const generateBouquet = (seed: string): BouquetData => {
   `;
 
   // -- BOUQUET COMPOSITION --
-
   const stemsInside: string[] = [];
   const stemsAbove: string[] = [];
   const foliageBack: string[] = [];
@@ -120,132 +117,137 @@ export const generateBouquet = (seed: string): BouquetData => {
   const fillerLayer: string[] = [];
 
   // Bloom center mass (above vase)
-  const bloomCy = vaseY - vaseHeight - 30;
+  const bloomCy = vaseY - vaseHeight - 40;
   const bloomCx = width / 2;
 
-  // 1. Generate Lush Foliage (Base)
-  const foliageCount = 14; // More foliage
+  // 1. Generate Lush Foliage (Base) - INCREASED VOLUME
+  const foliageCount = 25 + Math.floor(prng() * 10); // 25-35 leaves (was 14)
   for (let i = 0; i < foliageCount; i++) {
     const type: FlowerType = prng() > 0.5 ? 'fern' : 'eucalyptus';
     const color = type === 'fern' ? palette.leafColor : '#7ca982';
-    const angle = (i / foliageCount) * Math.PI + Math.PI;
-    const r = 90 + prng() * 50; // Larger spread
+    // Randomize angle distribution
+    const angle = (i / foliageCount) * Math.PI + Math.PI + (prng() - 0.5) * 0.5;
+    const r = 100 + prng() * 80; // Wider spread
     const x = bloomCx + Math.cos(angle) * r;
-    const y = bloomCy + Math.sin(angle) * r * 0.6 + 70;
+    const y = bloomCy + Math.sin(angle) * r * 0.7 + 80;
 
-    const el = generateFlower(seed + 'f' + i, type, color, 90 + prng() * 50, x, y);
+    const el = generateFlower(seed + 'f' + i, type, color, 90 + prng() * 60, x, y);
     if (i % 2 === 0) foliageBack.push(el);
     else foliageFront.push(el);
   }
 
-  // 2. Generate Main Flowers & Stems - LUXURIOUS arrangement
-  const flowerCount = 28 + Math.floor(prng() * 14); // More flowers for grandiose look
+  // 2. Generate Main Flowers & Stems - MASSIVE VOLUME & VARIETY
+  const flowerCount = 50 + Math.floor(prng() * 25); // 50-75 flowers
+  const spreadFactor = 1.0 + prng() * 0.4; // 1.0x - 1.4x spread
+
+  // Randomize phyllotaxis angle for unique layout structure
+  const goldenAngle = 2.39996 + (prng() - 0.5) * 0.1;
+
+  const availableTypes: FlowerType[] = ['rose', 'tulip', 'peony', 'lily', 'carnation', 'daisy'];
+
+  // Randomly select dominant flowers for this specific bouquet seed
+  const dominantType = availableTypes[Math.floor(prng() * availableTypes.length)];
+  const secondaryType = availableTypes[Math.floor(prng() * availableTypes.length)];
 
   for (let i = 0; i < flowerCount; i++) {
-    // Phyllotaxis distribution for natural arrangement
-    const r = 12 + Math.sqrt(i) * 50;
-    const theta = i * 2.39996;
+    // Phyllotaxis distribution
+    const r = (15 + Math.sqrt(i) * 55) * spreadFactor;
+    const theta = i * goldenAngle;
 
     const x = bloomCx + r * Math.cos(theta);
-    const y = bloomCy + r * Math.sin(theta) * 0.75 + (prng() - 0.5) * 35;
+    const y = bloomCy + r * Math.sin(theta) * 0.8 + (prng() - 0.5) * 40;
 
     let type: FlowerType = 'rose';
     let scale = 50;
 
-    // Logic: Center = Big Roses, Edges = Tulips/Daisies
-    const distRatio = r / 180;
+    // Logic: Center = Dominant (Peonies/Roses), Edges = Mixed
+    const distRatio = r / (250 * spreadFactor);
 
-    if (distRatio > 0.65) {
-      type = prng() > 0.5 ? 'daisy' : 'tulip';
-      scale = 45 + prng() * 30; // Slightly larger edge flowers
+    if (distRatio < 0.3) {
+      // Core: Big showstoppers
+      type = prng() > 0.3 ? dominantType : 'peony';
+      scale = 80 + prng() * 40;
+    } else if (distRatio < 0.7) {
+      // Middle: Mix of dominant and secondary
+      type = prng() > 0.5 ? dominantType : secondaryType;
+      scale = 60 + prng() * 30;
     } else {
-      type = 'rose';
-      scale = 80 + prng() * 55; // BIGGER roses in center for grandeur
-      if (prng() > 0.88) type = 'tulip';
+      // Edges: Wild mix
+      type = availableTypes[Math.floor(prng() * availableTypes.length)];
+      scale = 40 + prng() * 30;
     }
 
     const color = palette.flowerColors[Math.floor(prng() * palette.flowerColors.length)];
 
-    // Stem convergence at vase neck
-    const neckX = vaseX + (prng() - 0.5) * 20;
+    // Stem convergence
+    const neckX = vaseX + (prng() - 0.5) * 25;
     const neckY = vaseY - vaseHeight + 10;
 
-    // Curved stem from flower to neck
-    const cp1x = x + (prng() - 0.5) * 20;
-    const cp1y = (y + neckY) * 0.5;
-    stemsAbove.push(`<path d="M ${x} ${y} Q ${cp1x} ${cp1y} ${neckX} ${neckY}" stroke="${palette.stemColor}" stroke-width="3" fill="none" />`);
+    // Curved stem
+    const cp1x = x + (prng() - 0.5) * 30;
+    const cp1y = (y + neckY) * 0.5 + (prng() - 0.5) * 20;
+    stemsAbove.push(`<path d="M ${x} ${y} Q ${cp1x} ${cp1y} ${neckX} ${neckY}" stroke="${palette.stemColor}" stroke-width="${2 + prng()}" fill="none" />`);
 
-    // Stem inside vase
-    const bottomX = vaseX + (prng() - 0.5) * 60;
+    // Stem inside
+    const bottomX = vaseX + (prng() - 0.5) * 70;
     const bottomY = vaseY - 10;
-    stemsInside.push(`<path d="M ${neckX} ${neckY} L ${bottomX} ${bottomY}" stroke="${palette.stemColor}" stroke-width="3" fill="none" opacity="0.5" />`);
+    stemsInside.push(`<path d="M ${neckX} ${neckY} L ${bottomX} ${bottomY}" stroke="${palette.stemColor}" stroke-width="2" fill="none" opacity="0.4" />`);
 
     bloomingFlowers.push(generateFlower(seed + i, type, color, scale, x, y));
   }
 
-  // 3. Add Baby's Breath filler (delicate white flowers) - MORE for luxury
-  for (let i = 0; i < 8; i++) {
+  // 3. Add Baby's Breath filler - DENSE CLOUDS
+  const fillerCount = 15 + Math.floor(prng() * 10);
+  for (let i = 0; i < fillerCount; i++) {
     const angle = prng() * Math.PI * 2;
-    const r = 50 + prng() * 100;
+    const r = 40 + prng() * 160;
     const x = bloomCx + Math.cos(angle) * r;
-    const y = bloomCy + Math.sin(angle) * r * 0.6;
-    fillerLayer.push(generateBabysBreath(x, y, 30, 10 + Math.floor(prng() * 10), prng));
+    const y = bloomCy + Math.sin(angle) * r * 0.7;
+    fillerLayer.push(generateBabysBreath(x, y, 35, 12 + Math.floor(prng() * 15), prng));
   }
 
-  // 3.5. Add dewdrops on flowers for premium effect
+  // 3.5. Add dewdrops
   const dewdrops: string[] = [];
-  for (let i = 0; i < 12; i++) {
+  for (let i = 0; i < 20; i++) { // More dewdrops
     const angle = prng() * Math.PI * 2;
-    const r = 30 + prng() * 120;
+    const r = prng() * 150;
     const dx = bloomCx + Math.cos(angle) * r;
     const dy = bloomCy + Math.sin(angle) * r * 0.7;
-    const size = 2 + prng() * 3;
+    const size = 2 + prng() * 4;
     dewdrops.push(`
       <ellipse cx="${dx}" cy="${dy}" rx="${size}" ry="${size * 0.7}" 
         fill="url(#dewdrop-grad)" opacity="${0.6 + prng() * 0.3}"/>
     `);
   }
 
-  // 3.6. Add sparkle effects for magical touch
+  // Sparkles removed as per user request (was "tacky")
+  // Clean, elegant look only
   const sparkles: string[] = [];
-  for (let i = 0; i < 8; i++) {
-    const angle = prng() * Math.PI * 2;
-    const r = 40 + prng() * 100;
-    const sx = bloomCx + Math.cos(angle) * r;
-    const sy = bloomCy + Math.sin(angle) * r * 0.6 - 20;
-    const size = 4 + prng() * 6;
-    sparkles.push(`
-      <g transform="translate(${sx}, ${sy}) rotate(${prng() * 45})">
-        <path d="M 0 ${-size} L ${size * 0.3} 0 L 0 ${size} L ${-size * 0.3} 0 Z" fill="#fff" opacity="${0.4 + prng() * 0.4}"/>
-        <path d="M ${-size} 0 L 0 ${size * 0.3} L ${size} 0 L 0 ${-size * 0.3} Z" fill="#fff" opacity="${0.4 + prng() * 0.4}"/>
-      </g>
-    `);
-  }
 
-  // 4. Generate Ribbon (at the neck of the vase)
+  // 4. Generate Ribbon
   const ribbonColors = ['#e63946', '#d4a373', '#bc6c25', '#9d4edd', '#e07be0'];
   const ribbonColor = ribbonColors[Math.floor(prng() * ribbonColors.length)];
   const ribbon = generateRibbon(vaseX, vaseY - vaseHeight + 5, ribbonColor, prng);
 
-  // 5. Generate Fauna (Butterflies & Ladybugs)
-  const butterflyCount = Math.floor(prng() * 3) + 1;
+  // 5. Generate Fauna (Increased)
+  const butterflyCount = Math.floor(prng() * 4) + 2; // 2-6 butterflies
   const faunaLayer: string[] = [];
 
   for (let i = 0; i < butterflyCount; i++) {
-    const bx = bloomCx + (prng() - 0.5) * 220;
-    const by = bloomCy + (prng() - 0.5) * 160 - 60;
+    const bx = bloomCx + (prng() - 0.5) * 300; // Wider range
+    const by = bloomCy + (prng() - 0.5) * 250;
     const bColor = prng() > 0.5 ? '#f4a261' : '#e9c46a';
-    faunaLayer.push(generateFlower(seed + 'bug' + i, 'butterfly', bColor, 28, bx, by));
+    faunaLayer.push(generateFlower(seed + 'bug' + i, 'butterfly', bColor, 25 + prng() * 15, bx, by));
   }
 
   // Ladybugs
-  const ladybugCount = Math.floor(prng() * 3) + 1;
+  const ladybugCount = Math.floor(prng() * 5) + 2;
   for (let i = 0; i < ladybugCount; i++) {
-    const r = prng() * 110;
+    const r = prng() * 140;
     const theta = prng() * Math.PI * 2;
     const lx = bloomCx + Math.cos(theta) * r;
     const ly = bloomCy + Math.sin(theta) * r;
-    faunaLayer.push(generateFlower(seed + 'lady' + i, 'ladybug', 'red', 12, lx, ly));
+    faunaLayer.push(generateFlower(seed + 'lady' + i, 'ladybug', 'red', 10 + prng() * 4, lx, ly));
   }
 
   bloomingFlowers.reverse();
@@ -254,6 +256,20 @@ export const generateBouquet = (seed: string): BouquetData => {
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" style="overflow: visible" preserveAspectRatio="xMidYMid meet">
       <defs>
+        <style>
+          @keyframes bloom {
+            0% { transform: scale(0); opacity: 0; }
+            40% { transform: scale(1.1); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+          }
+          @keyframes sway {
+            0%, 100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+          }
+          /* Fix: Rotate around 0,0 where the stem connects (local coordinates) */
+          .flower-bloom { transform-origin: 0px 0px; }
+          .flower-sway { transform-origin: 0px 0px; animation: sway 5s ease-in-out infinite; }
+        </style>
         <filter id="glass-blur">
              <feGaussianBlur in="SourceGraphic" stdDeviation="2" />
         </filter>
@@ -262,6 +278,10 @@ export const generateBouquet = (seed: string): BouquetData => {
                 <fePointLight x="${width / 2 - 50}" y="${height / 2}" z="200"/>
             </feSpecularLighting>
             <feComposite in="SourceGraphic" in2="specOut" operator="arithmetic" k1="0" k2="1" k3="1" k4="0"/>
+        </filter>
+        <filter id="watercolor">
+             <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="2" result="noise" />
+             <feDisplacementMap in="SourceGraphic" in2="noise" scale="1" />
         </filter>
         <linearGradient id="water-grad" x1="0" x2="0" y1="0" y2="1">
             <stop offset="0%" stop-color="#d4f1f9" stop-opacity="0.4" />
@@ -350,7 +370,7 @@ export const generateBouquet = (seed: string): BouquetData => {
       <g>${foliageFront.join('')}</g>
       
       <!-- Main Blooms -->
-      <g filter="url(#soft-shadow)">${bloomingFlowers.join('')}</g>
+      <g filter="url(#soft-shadow) url(#watercolor)">${bloomingFlowers.join('')}</g>
       
       <!-- Dewdrops for premium effect -->
       <g filter="url(#glow)">${dewdrops.join('')}</g>

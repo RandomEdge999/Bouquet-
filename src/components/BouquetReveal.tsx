@@ -11,7 +11,7 @@ interface BouquetRevealProps {
 // Animation phases
 type RevealPhase = 'idle' | 'covering' | 'preparing' | 'reveal' | 'complete';
 
-// Enhanced Cloud/Mist element component with floating animation
+// Cloud element with darker/softer aesthetic to avoid "white flash"
 const CloudElement: React.FC<{
     delay: number;
     side: 'left' | 'right' | 'center';
@@ -36,9 +36,6 @@ const CloudElement: React.FC<{
         middle: 'top-1/2',
         bottom: 'bottom-0'
     };
-
-    // Unique ID for each cloud element
-    const cloudId = useRef(`cloud-${side}-${size}-${verticalPos}-${Math.random().toString(36).substr(2, 9)}`);
 
     const getInitialX = () => {
         if (side === 'left') return '-100%';
@@ -68,6 +65,7 @@ const CloudElement: React.FC<{
             className={`absolute ${horizontalPositions[side]} ${verticalPositions[verticalPos]} ${sizeClasses[size]} pointer-events-none`}
             style={{
                 translateY: getTransformY(),
+                willChange: 'transform, opacity'
             }}
             initial={{
                 opacity: 0,
@@ -96,7 +94,7 @@ const CloudElement: React.FC<{
             }}
         >
             <motion.div
-                className="w-full h-full"
+                className="w-full h-full relative"
                 animate={{
                     y: [0, -15, 0, 15, 0]
                 }}
@@ -107,29 +105,15 @@ const CloudElement: React.FC<{
                     ease: 'easeInOut'
                 }}
             >
-                <svg viewBox="0 0 200 120" className="w-full h-full">
-                    <defs>
-                        <filter id={`cloud-blur-${cloudId.current}`}>
-                            <feGaussianBlur in="SourceGraphic" stdDeviation="8" />
-                        </filter>
-                        <radialGradient id={`cloud-grad-${cloudId.current}`} cx="50%" cy="50%" r="60%">
-                            <stop offset="0%" stopColor="white" stopOpacity="1" />
-                            <stop offset="40%" stopColor="white" stopOpacity="0.98" />
-                            <stop offset="70%" stopColor="white" stopOpacity="0.8" />
-                            <stop offset="100%" stopColor="white" stopOpacity="0" />
-                        </radialGradient>
-                    </defs>
-                    <ellipse cx="100" cy="60" rx="95" ry="55" fill={`url(#cloud-grad-${cloudId.current})`} filter={`url(#cloud-blur-${cloudId.current})`} />
-                    <ellipse cx="50" cy="70" rx="55" ry="40" fill={`url(#cloud-grad-${cloudId.current})`} filter={`url(#cloud-blur-${cloudId.current})`} />
-                    <ellipse cx="150" cy="65" rx="60" ry="45" fill={`url(#cloud-grad-${cloudId.current})`} filter={`url(#cloud-blur-${cloudId.current})`} />
-                    <ellipse cx="100" cy="45" rx="70" ry="48" fill={`url(#cloud-grad-${cloudId.current})`} filter={`url(#cloud-blur-${cloudId.current})`} />
-                </svg>
+                {/* CSS Based Clouds - Soft grey/white mix, less blinding */}
+                <div className="absolute inset-0 bg-stone-100 rounded-[100%] blur-3xl opacity-80" />
+                <div className="absolute top-1/4 left-1/4 w-2/3 h-2/3 bg-white/50 rounded-[100%] blur-2xl opacity-60" />
             </motion.div>
         </motion.div>
     );
 };
 
-// Full screen cloud cover for seamless transition - FIXED z-index
+// Full screen cloud cover - Softened
 const CloudCover: React.FC<{ phase: RevealPhase }> = ({ phase }) => {
     const showClouds = phase === 'covering' || phase === 'preparing';
 
@@ -138,44 +122,31 @@ const CloudCover: React.FC<{ phase: RevealPhase }> = ({ phase }) => {
             {showClouds && (
                 <motion.div
                     className="fixed inset-0 overflow-hidden pointer-events-none"
-                    style={{ zIndex: 100 }} // High z-index to be on top of everything
+                    style={{ zIndex: 100 }}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.3 }}
                 >
-                    {/* Soft white backdrop for better cloud visibility */}
+                    {/* Darker/Softer backdrop - NO FLASH */}
                     <motion.div
-                        className="absolute inset-0 bg-white/70"
+                        className="absolute inset-0 bg-stone-200/40"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.3 }}
                     />
 
-                    {/* Dense cloud layers */}
+                    {/* Dense cloud layers - kept but softened in CloudElement */}
                     <CloudElement delay={0} side="left" size="xl" verticalPos="middle" />
                     <CloudElement delay={0.02} side="right" size="xl" verticalPos="middle" />
-
-                    <CloudElement delay={0.04} side="left" size="lg" verticalPos="top" />
-                    <CloudElement delay={0.06} side="left" size="lg" verticalPos="bottom" />
-
-                    <CloudElement delay={0.03} side="right" size="lg" verticalPos="top" />
-                    <CloudElement delay={0.07} side="right" size="lg" verticalPos="bottom" />
-
+                    {/* ... other clouds simplified for brevity/performance ... */}
                     <CloudElement delay={0.1} side="center" size="xl" verticalPos="middle" />
-                    <CloudElement delay={0.12} side="center" size="lg" verticalPos="top" />
-                    <CloudElement delay={0.14} side="center" size="lg" verticalPos="bottom" />
-
-                    {/* Extra layers */}
-                    <CloudElement delay={0.08} side="left" size="md" verticalPos="middle" />
-                    <CloudElement delay={0.09} side="right" size="md" verticalPos="middle" />
                 </motion.div>
             )}
         </AnimatePresence>
     );
 };
-
 // Floating flower petals during preparation
 const FloatingPetals: React.FC = () => {
     const petals = Array.from({ length: 16 }, (_, i) => ({
@@ -220,54 +191,8 @@ const FloatingPetals: React.FC = () => {
     );
 };
 
-// Sparkle burst on reveal - Enhanced
-const SparklesBurst: React.FC = () => {
-    const sparkles = Array.from({ length: 32 }, (_, i) => ({
-        id: i,
-        angle: (i / 32) * Math.PI * 2,
-        distance: 120 + Math.random() * 180,
-        delay: Math.random() * 0.5,
-        size: 6 + Math.random() * 12
-    }));
-
-    return (
-        <div className="fixed inset-0 flex items-center justify-center pointer-events-none" style={{ zIndex: 102 }}>
-            {sparkles.map(sparkle => (
-                <motion.div
-                    key={sparkle.id}
-                    className="absolute"
-                    initial={{
-                        opacity: 0,
-                        x: 0,
-                        y: 0,
-                        scale: 0
-                    }}
-                    animate={{
-                        opacity: [0, 1, 1, 0],
-                        x: Math.cos(sparkle.angle) * sparkle.distance,
-                        y: Math.sin(sparkle.angle) * sparkle.distance,
-                        scale: [0, 1.8, 1.4, 0]
-                    }}
-                    transition={{
-                        delay: sparkle.delay,
-                        duration: 1.4,
-                        ease: 'easeOut'
-                    }}
-                >
-                    <svg width={sparkle.size * 2} height={sparkle.size * 2} viewBox="0 0 20 20">
-                        <path
-                            d="M 10 0 L 12 8 L 20 10 L 12 12 L 10 20 L 8 12 L 0 10 L 8 8 Z"
-                            fill="#ffd700"
-                            filter="drop-shadow(0 0 8px rgba(255, 215, 0, 0.95))"
-                        />
-                    </svg>
-                </motion.div>
-            ))}
-        </div>
-    );
-};
-
-// Golden ring burst on reveal
+// Sparkles removed as per request
+const SparklesBurst: React.FC = () => null;
 const GoldenRing: React.FC = () => {
     return (
         <motion.div
@@ -303,7 +228,7 @@ export const BouquetReveal: React.FC<BouquetRevealProps> = ({
         if (sequenceRunning.current) return;
         sequenceRunning.current = true;
 
-        console.log('🌸 Starting reveal sequence - Phase: covering');
+
 
         // Phase 1: Clouds INSTANTLY cover
         setPhase('covering');
@@ -312,35 +237,35 @@ export const BouquetReveal: React.FC<BouquetRevealProps> = ({
 
         // Start sounds DURING covering
         setTimeout(() => {
-            console.log('🎵 Playing scissor sounds');
+
             playScissorSequence(5);
         }, 200);
 
         setTimeout(() => {
-            console.log('🎵 Playing flower rustle');
+
             playFlowerRustle();
         }, 800);
 
-        // Wait for clouds to cover
-        await new Promise(r => setTimeout(r, 2000));
+        // Wait for clouds to cover - FAST
+        await new Promise(r => setTimeout(r, 1200));
 
-        // Phase 2: Preparing
-        console.log('🌸 Phase: preparing');
+        // Phase 2: Preparing - QUICK PAUSE
+
         setPhase('preparing');
-        await new Promise(r => setTimeout(r, 800));
+        await new Promise(r => setTimeout(r, 100));
 
         // Phase 3: Grand reveal
-        console.log('🌸 Phase: reveal');
+
         setPhase('reveal');
         playRevealChime();
 
-        await new Promise(r => setTimeout(r, 400));
+        // NO DELAY - Show immediately
         setShowBouquet(true);
 
         await new Promise(r => setTimeout(r, 2000));
 
         // Complete
-        console.log('🌸 Phase: complete');
+
         setPhase('complete');
         sequenceRunning.current = false;
         onRevealComplete();

@@ -18,13 +18,17 @@
     @apply text-ink antialiased;
     font-feature-settings: "cv11", "ss01";
     
-    /* Background image - IMPORTANT: Must come AFTER any background-color */
-    background-color: #fdfbf7; /* Fallback color */
-    background-image: url('/Bouquet-/background.png');
-    background-size: cover;
-    background-position: center bottom;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+    /* Rich Romantic Background */
+    background: linear-gradient(135deg, #fff0f5 0%, #fff5ee 50%, #fdfbf7 100%);
+    background-size: 200% 200%;
+    animation: gradientShift 15s ease infinite;
+    color: #44403c;
+  }
+
+  @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
   }
   
   /* Ensure #root doesn't block the background */
@@ -102,5 +106,18 @@
   
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+
+  /* iOS Liquid Glass - The Apple Look */
+  .glass-ios {
+    @apply bg-white/40 backdrop-blur-xl border border-white/40 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)];
+    /* Advanced fallback for non-backdrop-filter support in older browsers */
+    background: rgba(255, 255, 255, 0.65); 
+  }
+  @supports (backdrop-filter: blur(20px)) {
+    .glass-ios {
+       background: rgba(255, 255, 255, 0.4);
+       backdrop-filter: blur(20px) saturate(180%);
+    }
   }
 }

@@ -1,110 +1,102 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
+import { X, ChevronLeft, Reply, Archive, Trash2, MoreHorizontal } from 'lucide-react';
 
 interface NoteCardProps {
+    subject: string;
     message: string;
     signature: string;
     isOpen: boolean;
     onClose: () => void;
 }
 
-export const NoteCard: React.FC<NoteCardProps> = ({ message, isOpen, onClose }) => {
+export const NoteCard: React.FC<NoteCardProps> = ({ subject, message, signature, isOpen, onClose }) => {
     return (
         <AnimatePresence>
             {isOpen && (
                 <>
-                    {/* MOBILE: Modal - Dead center of screen with backdrop */}
+                    {/* Backdrop */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="md:hidden fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm"
+                        className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-[2px]"
                     />
 
+                    {/* iOS Mail Interface Card */}
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.85 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.85 }}
-                        transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                        initial={{ opacity: 0, y: 100, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 100, scale: 0.95 }}
+                        transition={{ duration: 0.4, type: 'spring', damping: 25, stiffness: 300 }}
                         className="
-                            md:hidden fixed z-[61]
-                            inset-4 m-auto
-                            w-auto max-w-[300px] h-auto max-h-[70vh]
-                            overflow-y-auto
-                            bg-gradient-to-br from-white to-stone-50
-                            p-4 rounded-xl shadow-2xl
-                            border border-stone-200
-                        "
-                        style={{
-                            top: '50%',
-                            left: '50%',
-                            transform: 'translate(-50%, -50%)'
-                        }}
-                    >
-                        {/* Close X Button */}
-                        <button
-                            onClick={onClose}
-                            className="absolute top-2 right-2 p-1.5 rounded-full bg-stone-100 hover:bg-stone-200 transition-colors"
-                        >
-                            <X size={16} className="text-stone-500" />
-                        </button>
-
-                        {/* Content */}
-                        <div className="text-center mb-3 pb-3 border-b border-stone-200/60">
-                            <h3 className="font-serif text-lg font-bold text-red-700">🎄 Merry Christmas 🎄</h3>
-                            <p className="font-serif text-sm text-stone-600 mt-1">My Dearest Venooo</p>
-                        </div>
-                        <p className="font-script text-base text-stone-600 leading-relaxed mb-4 text-center">{message}</p>
-                        <div className="text-right pt-2 border-t border-stone-100">
-                            <p className="text-[8px] tracking-widest text-stone-400 uppercase mb-0.5">With all my love,</p>
-                            <p className="font-serif text-sm font-semibold text-stone-700">Your Aleem ❤️</p>
-                        </div>
-                    </motion.div>
-
-                    {/* DESKTOP: Side Card - Conditional logic applied now */}
-                    <motion.div
-                        initial={{ opacity: 0, x: 50 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: 50 }}
-                        transition={{ duration: 0.4 }}
-                        className="
-                            hidden md:block
-                            fixed z-[60]
-                            top-1/2 -translate-y-1/2
-                            right-24 lg:right-32
-                            w-72 lg:w-80
-                            bg-gradient-to-br from-white/95 to-stone-50/95
-                            backdrop-blur-sm
-                            p-5 lg:p-6
-                            shadow-xl
-                            transform -rotate-2
-                            border border-stone-200/60
-                            rounded
+                            fixed z-[61]
+                            inset-x-0 bottom-0 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2
+                            w-full sm:w-[450px]
+                            h-[85vh] sm:h-auto sm:max-h-[80vh]
+                            bg-white/90 glass-ios
+                            rounded-t-[2.5rem] sm:rounded-[2.5rem]
+                            shadow-2xl
+                            flex flex-col
+                            overflow-hidden
                         "
                     >
-                        {/* Desktop Close Button */}
-                        <button
-                            onClick={onClose}
-                            className="absolute -top-3 -right-3 p-2 rounded-full bg-white shadow-md hover:scale-110 transition-transform z-10 text-stone-400 hover:text-rose-500"
-                        >
-                            <X size={16} />
-                        </button>
+                        {/* Header Actions */}
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200/50 bg-white/40">
+                            <button
+                                onClick={onClose}
+                                className="flex items-center text-blue-500 font-medium text-base hover:opacity-70 transition-opacity"
+                            >
+                                <ChevronLeft size={22} className="-ml-1" />
+                                <span>Inbox</span>
+                            </button>
 
-                        <div className="relative mb-4 pb-3 border-b border-stone-200/60">
-                            <h3 className="font-serif text-base lg:text-lg font-semibold tracking-wide text-center">
-                                <span className="text-red-700">Merry Christmas</span>
-                            </h3>
-                            <p className="font-serif text-sm text-center text-stone-600 mt-0.5">My Dearest Venooo</p>
-                            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-20 h-px bg-gradient-to-r from-transparent via-red-300/50 to-transparent" />
+                            <span className="text-stone-400 text-xs font-medium tracking-wide">Messages</span>
+
+                            <button onClick={onClose} className="text-blue-500 font-medium">
+                                Done
+                            </button>
                         </div>
 
-                        <p className="font-script text-xl lg:text-2xl text-stone-600 leading-relaxed mb-5 text-center px-2">{message}</p>
+                        {/* Email Headers */}
+                        <div className="px-6 py-4 space-y-3 bg-white/20">
+                            <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                    <h2 className="text-2xl font-bold text-stone-900 leading-tight mb-1">{subject}</h2>
+                                    <div className="flex items-center gap-2 mt-2">
+                                        <div className="w-8 h-8 rounded-full bg-stone-200 flex items-center justify-center text-lg shadow-inner">
+                                            👨🏻‍💻
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="text-sm font-semibold text-stone-900 leading-none">Aleem</span>
+                                            <span className="text-xs text-stone-500 mt-0.5">To: <span className="text-stone-800">My Venooo</span></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <span className="text-xs text-stone-400 font-medium whitespace-nowrap pt-1">Just now</span>
+                            </div>
+                        </div>
 
-                        <div className="text-right pt-2 border-t border-stone-100/60">
-                            <p className="font-sans text-[10px] tracking-[0.2em] text-stone-400 uppercase mb-1">With all my love,</p>
-                            <p className="font-serif text-sm lg:text-base font-semibold text-stone-700 tracking-wide">Your Aleem</p>
+                        <div className="h-px bg-stone-200/50 mx-6" />
+
+                        {/* Scrollable Body */}
+                        <div className="flex-1 overflow-y-auto px-8 py-6">
+                            <div className="prose prose-stone prose-p:font-serif prose-p:text-lg prose-p:leading-relaxed prose-headings:font-sans text-stone-700">
+                                <p className="whitespace-pre-line">{message}</p>
+                            </div>
+
+                            <div className="mt-8 pt-6 border-t border-stone-100">
+                                <p className="font-script text-2xl text-stone-800">{signature} ❤️</p>
+                            </div>
+                        </div>
+
+                        {/* Bottom Toolkit */}
+                        <div className="px-6 py-4 border-t border-stone-200/50 bg-stone-50/50 backdrop-blur-md flex items-center justify-between text-blue-500">
+                            <Trash2 size={20} className="stroke-[1.5]" />
+                            <Archive size={20} className="stroke-[1.5]" />
+                            <Reply size={20} className="stroke-[1.5]" />
+                            <MoreHorizontal size={20} className="stroke-[1.5]" />
                         </div>
                     </motion.div>
                 </>

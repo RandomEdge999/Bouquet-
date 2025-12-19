@@ -19,12 +19,12 @@ export const Controls: React.FC<ControlsProps> = ({ onGenerate }) => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="
+                    glass-ios
                     group flex items-center gap-2
                     pl-3 pr-4 py-2 rounded-full 
-                    bg-white/40 backdrop-blur-md
-                    hover:bg-white/60 transition-all
-                    border border-white/50 hover:border-white/70
-                    shadow-sm hover:shadow-md
+                    transition-all
+                    hover:scale-[1.02] active:scale-[0.98]
+                    text-stone-700
                 "
             >
                 {/* Icon */}
