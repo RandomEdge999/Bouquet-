@@ -26,7 +26,7 @@ const main = async () => {
     console.error('\n❌ CONFIGURATION ERROR: Missing required secret(s) or variable(s).');
     console.error('The "Daily Love Email" workflow failed because it needs the following GitHub Secrets/Variables:\n');
 
-    const formatName = (path: (string | number)[]) => path.join('.');
+    const formatName = (path: any[]) => path.join('.');
 
     result.error.issues.forEach(issue => {
       console.error(`  - ${formatName(issue.path)}: ${issue.message}`);
@@ -47,8 +47,12 @@ const main = async () => {
   const now = DateTime.now().setZone('America/Chicago');
   console.log(`Current Chicago time: ${now.toString()}`);
 
-  if (now.hour !== 8) {
+  // Allow bypassing time check for testing
+  const force = process.argv.includes('--force');
+
+  if (!force && now.hour !== 8) {
     console.log(`It is not 8 AM in Chicago (it's ${now.hour}). Skipping.`);
+    console.log('💡 TIP: Run with --force to test immediately: npx tsx scripts/sendDailyEmail.ts --force');
     // Exit success so workflow doesn't fail
     process.exit(0);
   }
