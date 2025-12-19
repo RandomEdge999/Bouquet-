@@ -120,24 +120,8 @@ export const generateBouquet = (seed: string): BouquetData => {
   const bloomCy = vaseY - vaseHeight - 40;
   const bloomCx = width / 2;
 
-  // 1. Generate Lush Foliage (Base) - TEMPORARILY DISABLED TO DEBUG
-  const foliageCount = 0; // Was: 20 + Math.floor(prng() * 8)
-
-  /*
-  for (let i = 0; i < foliageCount; i++) {
-    const type: FlowerType = prng() > 0.5 ? 'fern' : 'eucalyptus';
-    const color = type === 'fern' ? palette.leafColor : '#7ca982';
-    // Randomize angle distribution - TIGHTER spread to avoid floating artifacts
-    const angle = (i / foliageCount) * Math.PI + Math.PI + (prng() - 0.5) * 0.3; // Reduced variance
-    const r = 80 + prng() * 60; // Tighter radius (was 100+80)
-    const x = bloomCx + Math.cos(angle) * r;
-    const y = bloomCy + Math.sin(angle) * r * 0.7 + 80;
-
-    const el = generateFlower(seed + 'f' + i, type, color, 90 + prng() * 60, x, y);
-    if (i % 2 === 0) foliageBack.push(el);
-    else foliageFront.push(el);
-  }
-  */
+  // 1. Foliage generation REMOVED - was causing stuck "pine cone" leaf bug
+  // User confirmed this fixes the issue (leaf appeared at screen 0,0)
 
   // 2. Generate Main Flowers & Stems - OPTIMIZED
   const flowerCount = 40 + Math.floor(prng() * 20); // 40-60 flowers (Balanced for mobile)
