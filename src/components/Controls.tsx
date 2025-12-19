@@ -12,7 +12,7 @@ export const Controls: React.FC<ControlsProps> = ({ onGenerate }) => {
             className="z-40 flex flex-col items-end"
             initial={{ x: 50, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.3 }}
+            transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0 }}
         >
             <motion.button
                 onClick={onGenerate}
@@ -42,7 +42,7 @@ export const Controls: React.FC<ControlsProps> = ({ onGenerate }) => {
             <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 1 }}
+                transition={{ delay: 0 }}
                 className="text-right text-[9px] text-stone-400 mt-1.5 font-medium tracking-wide pr-3"
             >
                 Click to create magic ✨

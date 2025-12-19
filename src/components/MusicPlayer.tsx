@@ -30,7 +30,7 @@ export const MusicPlayer: React.FC = () => {
             <motion.button
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 1, duration: 0.5 }}
+                transition={{ delay: 0, duration: 0.5 }}
                 onClick={toggleMusic}
                 className="
                     glass-ios
