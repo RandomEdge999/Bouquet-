@@ -1,170 +1,158 @@
 import { getPrng } from '../seed';
+import { DateTime } from 'luxon';
 
-const SENTIMENT_BANKS = {
-    opener: [
-        "My dearest,",
-        "To my love,",
-        "Beautiful soul,",
-        "My sunshine,",
-        "Hey gorgeous,",
-        "My everything,",
-        "My sweet love,",
-        "To my favorite person,",
-        "Hello my love,",
-        "My darling,",
-        "To the one who holds my heart,",
-        "My beautiful girl,",
-        "Hey love of my life,",
-        "My rock, my heart,",
-        "To my forever,",
-        "Dearest love,",
-        "My joy,",
-        "Hey beautiful,",
-        "To my one and only,",
-        "My heart,",
-    ],
-    admiration: [
-        "you make every moment magical.",
-        "your smile brightens my entire world.",
-        "I fall for you more every single day.",
-        "you are the most beautiful person I know.",
-        "being with you feels like a dream.",
-        "you inspire me to be better.",
-        "your kindness radiates in everything you do.",
-        "I am constantly in awe of your strength.",
-        "you have such a beautiful heart.",
-        "your laugh is my favorite sound.",
-        "simple moments with you are my favorite memories.",
-        "you make life feel so vibrant and full.",
-        "your beauty takes my breath away, inside and out.",
-        "I admire everything about you.",
-        "you are a masterpiece of a person.",
-        "your presence makes everything better.",
-        "just seeing you makes my day.",
-        "you are pure magic.",
-        "no one compares to you.",
-        "you are my dream come true.",
-    ],
-    gratitude: [
-        "Thank you for being my person.",
-        "I'm so grateful you're in my life.",
-        "Every day with you is a gift.",
-        "You make my heart so full.",
-        "Life is beautiful because of you.",
-        "I appreciate you more than words can say.",
-        "Thank you for loving me the way you do.",
-        "I'm the luckiest person to have you.",
-        "You've given me so much clarity and joy.",
-        "Thank you for being my adventure partner.",
-        "I cherish every second we spend together.",
-        "You are the best thing that ever happened to me.",
-        "Thank you for just being you.",
-        "I'm so thankful for your love.",
-        "You enrich my life in every way.",
-        "Grateful for your love and your patience.",
-        "Thank you for being my home.",
-        "My life is infinitely better with you in it.",
-    ],
-    love: [
-        "I love you endlessly.",
-        "You have my whole heart.",
-        "Forever isn't long enough with you.",
-        "You're my favorite hello and hardest goodbye.",
-        "My heart beats for you.",
-        "I love you more than yesterday.",
-        "You are my forever and always.",
-        "Loving you is the best part of my life.",
-        "My love for you grows stronger every day.",
-        "You are the love of my life.",
-        "I am so deeply in love with you.",
-        "You mean the world to me.",
-        "I adore you, completely.",
-        "You are my soulmate.",
-        "I love you to the moon and back.",
-        "My heart belongs to you, always.",
-        "You are my greatest love.",
-        "I love you with everything I have.",
-        "Only you, forever.",
-    ],
-    closing: [
-        "Can't wait to see you.",
-        "Thinking of you always.",
-        "Sending you all my love.",
-        "You are my world.",
-        "Counting down the moments until I see you.",
-        "Yours effectively,",
-        "With all my heart,",
-    ]
-};
+// ------------------------------------------------------------------
+// SOPHISTICATED MESSAGE GENERATION ENGINE
+// Designed to mimic "LLM-like" thoughtfulness via complex grammar
+// and context-aware sentence construction.
+// ------------------------------------------------------------------
+
+const OPENERS = [
+    "My dearest Venooo,",
+    "To my beautiful girl,",
+    "My darling,",
+    "To the love of my life,",
+    "Hey beautiful,",
+    "My sweet love,",
+    "To my everything,",
+    "My precious Venooo,",
+    "To my favorite person,",
+    "Hello my love,",
+];
+
+const INTROS = [
+    "I was just sitting here thinking about you and I had to send this.",
+    "I wanted to take a moment to tell you how much you mean to me.",
+    "There isn't a moment that goes by where you aren't on my mind.",
+    "I woke up with you on my heart today.",
+    "I just wanted to send you a little reminder of how loved you are.",
+    "The world feels a little brighter knowing you're in it.",
+    "I found myself smiling just now, simply because I thought of you.",
+    "I hope you know how incredibly special you are to me.",
+    "Every day with you feels like a beautiful adventure.",
+    "I just wanted to pause and appreciate you for a second.",
+];
+
+// Context: Morning (5AM - 11AM)
+const MORNING_THOUGHTS = [
+    "I hope your day starts as beautifully as you make my life.",
+    "Good morning, my sunshine. I hope you slept well.",
+    "Starting my day thinking of you is the best part of my morning.",
+    "I hope you have a wonderful day ahead, full of smiles.",
+    "May your coffee be strong and your day be sweet.",
+];
+
+// Context: Evening (5PM - 4AM)
+const EVENING_THOUGHTS = [
+    "I hope you had a lovely day today.",
+    "As the day winds down, my thoughts always drift to you.",
+    "I hope you can relax and rest well tonight.",
+    "Sending you a massive hug to end your day.",
+    "Sleep well tonight knowing you are deeply loved.",
+];
+
+// Deep Emotional Cores (The "Thoughtful" Part)
+const DEEP_THOUGHTS = [
+    "You bring so much light into my life, in ways I can't even explain. It's in your laugh, your kindness, and the way you just exist.",
+    "I honestly don't know what I did to deserve someone as wonderful as you. You make everything better just by being you.",
+    "I love the way you look at the world. You have this beautiful heart that radiates warmth to everyone around you.",
+    "Loving you is the easiest thing I've ever done. It feels like coming home.",
+    "You inspire me every simple day to be a better person. Your strength and grace amaze me.",
+    "I cherish every little moment we share. Even the quiet ones are my favorite because I'm with you.",
+    "You are my peace in the chaos, my calm in the storm. Thank you for being my rock.",
+    "I fall purely in love with you more every single day. Just when I think I couldn't possibly love you more, you prove me wrong.",
+    "You are a masterpiece. Inside and out, you are the most beautiful person I know.",
+    "My life is infinitely better with you in it. You are my dream come true.",
+    "There is a gentleness to your soul that captures me every time. I am so lucky to be yours.",
+    "You are my best friend and my greatest love all wrapped into one perfect human.",
+];
+
+const CLOSINGS = [
+    "I love you more than words can say.",
+    "Forever yours,",
+    "With all my love,",
+    "Yours always,",
+    "Loving you endlessly,",
+    "You are my world.",
+    "Can't wait to see you.",
+    "Thinking of you always,",
+    "All my heart,",
+    "Love you to the moon and back,",
+];
+
+const SIGNATURES = [
+    "Your Aleem",
+    "Aleem",
+    "Your Guy",
+    "Love, Aleem",
+];
 
 const SUBJECT_LINES = [
-    "Fresh flowers for my love 💐",
-    "A little beauty for a beautiful person",
-    "Thinking of you today ✨",
-    "Something to make you smile",
-    "Just because I love you 🌸",
-    "A bouquet just for you 🌹",
-    "My daily reminder of my love",
-    "To brighten your day ☀️",
-    "For my favorite person ❤️",
-    "Sending you a little magic ✨",
+    "Thinking of you ✨",
+    "For my beautiful Venooo 💐",
+    "A little note for you ❤️",
+    "Just because I love you",
     "You are on my mind 💭",
-    "Flowers for my flower 🌺",
-    "Because you deserve beautiful things",
-    "Hey beautiful, this is for you",
-    "My heart sent this to you",
-    "A little surprise for you 🎁",
-    "Thinking of you right now",
-    "Just a little love note 💌",
-    "For the most beautiful girl",
-    "Your daily dose of love",
+    "My daily reminder",
+    "To brighten your day ☀️",
+    "Something beautiful for you 🌹",
+    "Hey beautiful",
+    "My heart sent this",
+    "A flower for my flower 🌺",
+    "You mean everything to me",
 ];
 
 export const generateMessage = (seed: string) => {
-    const prng = getPrng(seed + 'msg2'); // Updated seed salt for freshness
-
+    // 1. Setup PRNG
+    const prng = getPrng(seed + 'v3_engine'); // V3 engine salt
     const pick = (arr: string[]) => arr[Math.floor(prng() * arr.length)];
-    const coinFlip = () => prng() > 0.5;
+    const chance = (prob: number) => prng() < prob;
 
-    // Pick components
-    const opener = pick(SENTIMENT_BANKS.opener);
-    const admiration = pick(SENTIMENT_BANKS.admiration);
-    const gratitude = pick(SENTIMENT_BANKS.gratitude);
-    const love = pick(SENTIMENT_BANKS.love);
+    // 2. Determine Time Context (Client-side usage)
+    const now = DateTime.now();
+    const hour = now.hour;
+    const isMorning = hour >= 5 && hour < 12;
+    const isEvening = hour >= 17 || hour < 4;
 
-    // Randomize Structure
-    // 0: Opener + Admiration + Love
-    // 1: Opener + Gratitude + Love
-    // 2: Opener + Admiration + Gratitude + Love
-    // 3: Opener + Love + Gratitude
+    // 3. Assemble Components
+    const opener = pick(OPENERS);
 
-    const structureType = Math.floor(prng() * 4);
-    let body = "";
+    // Intro Layer
+    let intro = pick(INTROS);
 
-    if (structureType === 0) {
-        body = `${capitalize(admiration)} ${love}`;
-    } else if (structureType === 1) {
-        body = `${gratitude} ${love}`;
-    } else if (structureType === 2) {
-        body = `${capitalize(admiration)} ${gratitude} ${love}`;
-    } else {
-        body = `${love} ${gratitude}`;
+    // Context Layer (Injection)
+    // If it's a generated seed (e.g. from email script), this usually matches the Send Time (morning)
+    // If it's live viewing, it matches user time.
+    if (isMorning && chance(0.6)) {
+        intro = `${intro} ${pick(MORNING_THOUGHTS)}`;
+    } else if (isEvening && chance(0.6)) {
+        intro = `${intro} ${pick(EVENING_THOUGHTS)}`;
     }
 
-    // Sometimes add a closing thought if it's short
-    if (body.length < 100 && coinFlip()) {
-        // Maybe add another sentence logic later, for now keeping it simple but varied
+    // Deep Core Layer (The "Meat")
+    // We can chain 1 or 2 deep thoughts for richer text
+    let body = pick(DEEP_THOUGHTS);
+
+    if (chance(0.3)) {
+        // Add a second deep thought for longer letters
+        let secondBody = pick(DEEP_THOUGHTS);
+        while (secondBody === body) secondBody = pick(DEEP_THOUGHTS); // Avoid dupes
+        body = `${body} ${secondBody}`;
     }
 
-    const text = `${opener}\n\n${body}`;
-
+    // Closing
+    const closing = pick(CLOSINGS);
+    const signature = pick(SIGNATURES);
     const subject = pick(SUBJECT_LINES);
+
+    // 4. Construct Final Text
+    // Structure: Opener \n\n Intro \n\n Body \n\n Closing
+    const text = `${opener}\n\n${intro}\n\n${body}\n\n${closing}`;
 
     return {
         subject,
         text,
-        signature: "Your Aleem"
+        signature
     };
 };
 
-const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
