@@ -24,28 +24,40 @@ export const NoteCard: React.FC<NoteCardProps> = ({ subject, message, signature,
                         className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-[2px]"
                     />
 
-                    {/* iOS Mail Interface Card */}
+                    {/* iOS Mail Interface Card - Draggable & Centered */}
                     <motion.div
-                        initial={{ opacity: 0, y: 100, scale: 0.95 }}
+                        drag
+                        dragMomentum={false}
+                        dragElastic={0.1}
+                        dragConstraints={{ left: -100, right: 100, top: -100, bottom: 100 }}
+                        initial={{ opacity: 0, y: 50, scale: 0.9 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 100, scale: 0.95 }}
-                        transition={{ duration: 0.4, type: 'spring', damping: 25, stiffness: 300 }}
+                        exit={{ opacity: 0, y: 50, scale: 0.9 }}
+                        transition={{ duration: 0.3, type: 'spring', damping: 25, stiffness: 300 }}
                         className="
                             fixed z-[61]
-                            inset-x-0 bottom-0 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2
-                            w-full sm:w-[450px]
-                            h-[85vh] sm:h-auto sm:max-h-[80vh]
-                            bg-white/90 glass-ios
-                            rounded-t-[2.5rem] sm:rounded-[2.5rem]
+                            /* Centered by default on all screens */
+                            top-[10%] left-[5%] right-[5%] bottom-auto
+                            sm:top-1/2 sm:left-1/2 sm:right-auto sm:bottom-auto
+                            sm:-translate-x-1/2 sm:-translate-y-1/2
+                            
+                            w-auto sm:w-[450px]
+                            h-[80vh] sm:h-auto sm:max-h-[80vh]
+                            
+                            bg-white/95 glass-ios
+                            rounded-[2rem]
                             shadow-2xl
                             flex flex-col
                             overflow-hidden
+                            cursor-grab active:cursor-grabbing
                         "
+                        style={{ x: 0, y: 0 }}
                     >
                         {/* Header Actions */}
                         <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200/50 bg-white/40">
                             <button
                                 onClick={onClose}
+                                onPointerDown={(e) => e.stopPropagation()}
                                 className="flex items-center text-blue-500 font-medium text-base hover:opacity-70 transition-opacity"
                             >
                                 <ChevronLeft size={22} className="-ml-1" />
@@ -54,7 +66,11 @@ export const NoteCard: React.FC<NoteCardProps> = ({ subject, message, signature,
 
                             <span className="text-stone-400 text-xs font-medium tracking-wide">Messages</span>
 
-                            <button onClick={onClose} className="text-blue-500 font-medium">
+                            <button
+                                onClick={onClose}
+                                onPointerDown={(e) => e.stopPropagation()}
+                                className="text-blue-500 font-medium"
+                            >
                                 Done
                             </button>
                         </div>
@@ -81,7 +97,10 @@ export const NoteCard: React.FC<NoteCardProps> = ({ subject, message, signature,
                         <div className="h-px bg-stone-200/50 mx-6" />
 
                         {/* Scrollable Body */}
-                        <div className="flex-1 overflow-y-auto px-8 py-6">
+                        <div
+                            className="flex-1 overflow-y-auto px-8 py-6 cursor-auto"
+                            onPointerDown={(e) => e.stopPropagation()}
+                        >
                             <div className="prose prose-stone prose-p:font-serif prose-p:text-lg prose-p:leading-relaxed prose-headings:font-sans text-stone-700">
                                 <p className="whitespace-pre-line">{message}</p>
                             </div>
