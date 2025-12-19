@@ -252,7 +252,7 @@ export const generateBouquet = (seed: string): BouquetData => {
 
   // SVG Structure with enhanced visuals - PREMIUM single vase design
   const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" style="overflow: visible" preserveAspectRatio="xMidYMid meet">
       <defs>
         <filter id="glass-blur">
              <feGaussianBlur in="SourceGraphic" stdDeviation="2" />
