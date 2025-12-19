@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { LoveParticles } from '../components/LoveParticles';
+// LoveParticles import removed
 // AmbientEffects moved to Layout
 import { SnowEffect } from '../components/SnowEffect';
 import { MusicPlayer } from '../components/MusicPlayer';
@@ -78,7 +78,7 @@ export const Home: React.FC = () => {
             <Header />
             {/* AmbientEffects handled in Layout */}
             <SnowEffect />
-            <LoveParticles />
+            {/* LoveParticles removed per user request */}
 
             {/* Main Content Container - Bouquet anchored to bottom */}
             <div className="fixed inset-0 w-full h-screen h-[100dvh] overflow-visible flex flex-col">

@@ -24,24 +24,26 @@ export const NoteCard: React.FC<NoteCardProps> = ({ subject, message, signature,
                         className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-[2px]"
                     />
 
-                    {/* iOS Mail Interface Card - Draggable & Centered */}
                     <motion.div
                         drag
                         dragMomentum={false}
                         dragElastic={0.1}
-                        dragConstraints={{ left: -100, right: 100, top: -100, bottom: 100 }}
+                        // Widened constraints to allow moving "anywhere" while keeping it retrievable
+                        dragConstraints={{ left: -1000, right: 1000, top: -800, bottom: 800 }}
                         initial={{ opacity: 0, y: 50, scale: 0.9 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 50, scale: 0.9 }}
                         transition={{ duration: 0.3, type: 'spring', damping: 25, stiffness: 300 }}
                         className="
                             fixed z-[61]
-                            /* Centered by default on all screens */
-                            top-[10%] left-[5%] right-[5%] bottom-auto
-                            sm:top-1/2 sm:left-1/2 sm:right-auto sm:bottom-auto
-                            sm:-translate-x-1/2 sm:-translate-y-1/2
                             
-                            w-auto sm:w-[450px]
+                            /* Mobile: 5% from sides, near top */
+                            left-[5%] right-[5%] top-[8%] bottom-auto
+                            
+                            /* Desktop: Centered horizontally via margins, fixed top position */
+                            sm:left-0 sm:right-0 sm:mx-auto sm:w-[480px] sm:top-[15%] sm:bottom-auto
+                            
+                            w-auto 
                             h-[80vh] sm:h-auto sm:max-h-[80vh]
                             
                             bg-white/95 glass-ios
@@ -106,7 +108,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({ subject, message, signature,
                             </div>
 
                             <div className="mt-8 pt-6 border-t border-stone-100">
-                                <p className="font-script text-2xl text-stone-800">{signature} ❤️</p>
+                                <p className="font-script text-2xl text-stone-800">{signature}</p>
                             </div>
                         </div>
 
