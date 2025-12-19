@@ -1,6 +1,5 @@
 import React, { type ReactNode } from 'react';
 import { PicnicScene } from './PicnicScene';
-import { SparkleTrail } from './SparkleTrail';
 import { AmbientEffects } from './AmbientEffects';
 
 // Premium Layout Wrapper
@@ -13,8 +12,7 @@ export const Layout: React.FC<{ children: ReactNode; showClouds?: boolean }> = (
             {/* 2. Ambient Atmosphere (Clouds - Conditional Transition) */}
             <AmbientEffects isActive={showClouds} />
 
-            {/* 3. Interactive Sparkle Trail */}
-            <SparkleTrail />
+            {/* 3. Interactive Sparkle Trail - Removed per cleanup */}
 
             {/* Grain Overlay for premium texture */}
             <div

@@ -63,30 +63,7 @@ export const Header: React.FC = () => {
                 </Link>
             </motion.div>
 
-            {/* Right: Favorites (kept absolute right) */}
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                className="absolute right-4 top-4 md:right-6 md:top-6 pointer-events-auto"
-            >
-                <Link
-                    to="/favorites"
-                    className="
-                        glass-ios
-                        group relative w-10 h-10 md:w-11 md:h-11 rounded-full 
-                        flex items-center justify-center
-                        transition-all hover:scale-110
-                    "
-                >
-                    <Heart
-                        size={18}
-                        className="text-rose-500 group-hover:text-rose-600 transition-colors"
-                        fill="currentColor"
-                        fillOpacity={0.2}
-                    />
-                </Link>
-            </motion.div>
+
         </header>
     );
 };

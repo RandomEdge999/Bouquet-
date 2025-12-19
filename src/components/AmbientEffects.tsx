@@ -19,8 +19,8 @@ export const AmbientEffects: React.FC<AmbientEffectsProps> = ({ isActive = false
                     {/* Cloud Transition Layer - White on Black asset with Screen Blend Mode */}
                     {/* This eliminates all artifacts/checkerboards by treating black as transparent */}
                     <motion.div
-                        initial={{ scale: 1.1, x: '10%' }}
-                        animate={{ scale: 1.2, x: '-10%' }}
+                        initial={{ scale: 1.35, x: '10%' }}
+                        animate={{ scale: 1.45, x: '-10%' }}
                         transition={{
                             duration: 8,
                             ease: "easeInOut"

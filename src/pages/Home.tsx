@@ -153,7 +153,7 @@ export const Home: React.FC = () => {
 
             {/* UNIFIED RIGHT CONTROL STACK (Vertical) - Top Right */}
             {/* Using padding-top to clear the header area on mobile if needed, or just top-4 */}
-            <div className="fixed top-16 right-4 sm:top-20 sm:right-6 lg:top-24 lg:right-10 z-50 flex flex-col items-end gap-3">
+            <div className="fixed top-28 right-4 sm:top-20 sm:right-6 lg:top-24 lg:right-10 z-50 flex flex-col items-end gap-3">
 
                 {/* 1. Read Note Button */}
                 <motion.button
