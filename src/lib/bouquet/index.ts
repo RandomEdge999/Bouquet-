@@ -198,9 +198,6 @@ export const generateBouquet = (seed: string): BouquetData => {
       `);
   }
 
-  // Sparkles removed
-  const sparkles: string[] = [];
-
   // 4. Ribbon (Same)
   const ribbonColors = ['#e63946', '#d4a373', '#bc6c25', '#9d4edd', '#e07be0'];
   const ribbonColor = ribbonColors[Math.floor(prng() * ribbonColors.length)];
