@@ -14,6 +14,8 @@ import { generateBouquet, type BouquetData } from '../lib/bouquet';
 import { generateMessage } from '../lib/message';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import { Mail } from 'lucide-react'; // Add Mail icon
+
 export const Home: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const [data, setData] = useState<BouquetData | null>(null);
@@ -21,6 +23,7 @@ export const Home: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [isRevealing, setIsRevealing] = useState(false);
     const [isFirstLoad, setIsFirstLoad] = useState(true);
+    const [isNoteOpen, setIsNoteOpen] = useState(false); // New State
     const bouquetRef = useRef<HTMLDivElement>(null);
 
     // Initial load
@@ -50,7 +53,6 @@ export const Home: React.FC = () => {
         setLoading(false);
 
         // Trigger reveal animation for manual generates
-        // skipReveal controls whether to show reveal (true on first load)
         if (!skipReveal) {
             setIsRevealing(true);
         }
@@ -149,19 +151,48 @@ export const Home: React.FC = () => {
                 </div>
             </div>
 
-            {/* Christmas Music Control */}
-            <MusicPlayer />
+            {/* UNIFIED RIGHT CONTROL STACK (Vertical) - Top Right */}
+            {/* Using padding-top to clear the header area on mobile if needed, or just top-4 */}
+            <div className="fixed top-16 right-4 sm:top-20 sm:right-6 lg:top-24 lg:right-10 z-50 flex flex-col items-end gap-3">
 
-            {/* Note Card - Always visible, positioned appropriately */}
+                {/* 1. Read Note Button */}
+                <motion.button
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.8 }}
+                    onClick={() => setIsNoteOpen(!isNoteOpen)}
+                    className="
+                        flex items-center gap-2
+                        pl-3 pr-4 py-2 rounded-full
+                        bg-white/40 backdrop-blur-md
+                        hover:bg-white/60 transition-all
+                        border border-white/50 hover:border-white/70
+                        shadow-sm hover:shadow-md
+                        group
+                    "
+                >
+                    <Mail size={16} className="text-stone-600 group-hover:text-rose-600 transition-colors" />
+                    <span className="text-xs font-medium text-stone-600 uppercase tracking-widest group-hover:text-rose-700 transition-colors">
+                        {isNoteOpen ? 'Close' : 'Note'}
+                    </span>
+                </motion.button>
+
+                {/* 2. Music Player */}
+                <MusicPlayer />
+
+                {/* 3. New Bouquet (Main CTA) */}
+                <Controls onGenerate={handleGenerate} />
+            </div>
+
+            {/* Note Card Modal/Overlay */}
             {message && !loading && !isRevealing && (
                 <NoteCard
                     message={message.text}
                     signature={message.signature}
+                    isOpen={isNoteOpen}
+                    onClose={() => setIsNoteOpen(false)}
                 />
             )}
-
-            {/* Controls - Fixed at bottom center */}
-            <Controls onGenerate={handleGenerate} />
         </Layout>
     );
 };

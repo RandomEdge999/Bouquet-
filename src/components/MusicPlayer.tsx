@@ -6,8 +6,8 @@ export const MusicPlayer: React.FC = () => {
     const [isPlaying, setIsPlaying] = useState(false);
     const iframeRef = useRef<HTMLIFrameElement>(null);
 
-    // YouTube Video ID for "Christmas Lofi Mix" (No Copyright)
-    const VIDEO_ID = "T4CFbPquehk";
+    // YouTube Video ID for "Christmas Instrumental" (O Holy Night / Peaceful)
+    const VIDEO_ID = "_j37WnwmzSI";
 
     useEffect(() => {
         // Initialize player state
@@ -26,45 +26,33 @@ export const MusicPlayer: React.FC = () => {
 
     return (
         <>
-            {/* Minimalist Control Button - TOP LEFT on mobile, near header */}
             <motion.button
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 1, duration: 0.5 }}
                 onClick={toggleMusic}
                 className="
-                    fixed z-30 
-                    
-                    /* Mobile - top area, right side near favorites */
-                    top-4 right-12
-                    
-                    /* Tablet */
-                    sm:top-5 sm:right-14
-                    
-                    /* Desktop - left side, vertically centered */
-                    md:top-auto md:right-auto
-                    md:bottom-1/2 md:left-8 md:translate-y-1/2
-                    
-                    group flex items-center gap-1.5 md:gap-2
-                    px-2 py-1.5 md:px-3 md:py-2 rounded-full 
-                    bg-white/20 backdrop-blur-md
-                    hover:bg-white/30 transition-all
-                    border border-white/30 hover:border-white/40
+                    group flex items-center gap-2
+                    pl-3 pr-4 py-2 rounded-full 
+                    bg-white/40 backdrop-blur-md
+                    hover:bg-white/60 transition-all
+                    border border-white/50 hover:border-white/70
+                    shadow-sm hover:shadow-md
                 "
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
             >
                 {/* Icon */}
-                <div className="relative w-3.5 h-3.5 md:w-4 md:h-4 text-stone-600 group-hover:text-rose-600 transition-colors">
+                <div className="relative w-4 h-4 text-stone-600 group-hover:text-rose-600 transition-colors">
                     {isPlaying ? (
-                        <Pause size={14} fill="currentColor" className="opacity-80 md:w-4 md:h-4" />
+                        <Pause size={16} fill="currentColor" className="opacity-80" />
                     ) : (
-                        <Play size={14} fill="currentColor" className="opacity-80 ml-0.5 md:w-4 md:h-4" />
+                        <Play size={16} fill="currentColor" className="opacity-80 ml-0.5" />
                     )}
                 </div>
 
-                {/* Text Label - hidden on mobile, visible on desktop */}
-                <span className="hidden md:inline text-xs font-medium text-stone-500 uppercase tracking-widest">
+                {/* Text Label */}
+                <span className="text-xs font-medium text-stone-600 uppercase tracking-widest group-hover:text-rose-700 transition-colors">
                     {isPlaying ? 'Playing' : 'Music'}
                 </span>
             </motion.button>

@@ -9,9 +9,9 @@ interface ControlsProps {
 export const Controls: React.FC<ControlsProps> = ({ onGenerate }) => {
     return (
         <motion.div
-            className="fixed bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 z-40"
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
+            className="z-40 flex flex-col items-end"
+            initial={{ x: 50, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
             transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.3 }}
         >
             <motion.button
@@ -98,7 +98,7 @@ export const Controls: React.FC<ControlsProps> = ({ onGenerate }) => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1 }}
-                className="text-center text-[10px] text-stone-400 mt-2 font-medium tracking-wide"
+                className="text-right text-[10px] text-stone-400 mt-2 font-medium tracking-wide pr-4"
             >
                 Click to create magic ✨
             </motion.p>

@@ -59,24 +59,18 @@ const main = async () => {
   }
 
   // 3. Generate Content
-  const seed = getTodaySeed();
-  console.log(`Generating for seed: ${seed}`);
+  // Change: Use Timestamp based seed for uniqueness per run
+  const seed = DateTime.now().toMillis().toString();
+  console.log(`Generating for seed: ${seed} (Unique per run)`);
 
   const bouquet = generateBouquet(seed);
   const message = generateMessage(seed);
 
   // 4. Render SVG to PNG
   console.log('Rendering SVG...');
-  // Resvg needs specific width/height or uses viewBox
-  // Our SVG has width="100%" height="100%" and viewBox="0 0 500 800".
-  // We need to set explicit dimensions for the renderer usually.
-
-  // Strip the width="100%" height="100%" attributes to let Resvg use viewBox defaults or override
   let svgForRender = bouquet.svg.replace('width="100%"', '').replace('height="100%"', '');
-
-  // Actually Resvg works best if we specify width
   const opts = {
-    fitTo: { mode: 'width' as const, value: 800 }, // High res
+    fitTo: { mode: 'width' as const, value: 800 },
     background: bouquet.palette.backgroundColor,
   };
 
@@ -93,30 +87,92 @@ const main = async () => {
     },
   });
 
+  // Golden Luxury HTML Template
+  const dateStr = DateTime.now().setZone('America/Chicago').toFormat('MMMM d, yyyy');
+  const accentColor = bouquet.palette.flowerColors[0];
+
+  // Choose a text color that matches the bouquet vibe but stays readable
+  const textColor = "#57534e";
+  const goldColor = "#d4af37";
+
   const htmlContent = `
-    <div style="font-family: serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background: #fdfbf7;">
-      <h1 style="text-align: center; font-size: 24px; color: ${bouquet.palette.flowerColors[0]};">
-        ${message.subject}
-      </h1>
-      
-      <div style="text-align: center; margin: 20px 0;">
-        <img src="cid:bouquet-daily" alt="Your Bouquet" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" />
-      </div>
-      
-      <div style="background: white; padding: 24px; border: 1px solid #eee; margin: 20px 0;">
-        <p style="font-size: 18px; line-height: 1.6; white-space: pre-line;">
-          ${message.text}
-        </p>
-        <p style="text-align: right; font-style: italic; margin-top: 16px;">
-          — ${message.signature}
-        </p>
-      </div>
-      
-      <p style="text-align: center; font-size: 12px; color: #999; font-family: sans-serif;">
-        <a href="${env.SITE_URL}?seed=${seed}" style="color: #666;">View purely in browser</a>
-      </p>
-    </div>
-  `;
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Great+Vibes&family=Lato:wght@300;400&display=swap');
+            body { margin: 0; padding: 0; background-color: #f4f1ea; font-family: 'Lato', 'Helvetica', sans-serif; -webkit-font-smoothing: antialiased; }
+            .wrapper { width: 100%; table-layout: fixed; background-color: #f4f1ea; padding-bottom: 40px; }
+            .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; box-shadow: 0 20px 50px rgba(0,0,0,0.08); border-radius: 4px; overflow: hidden; position: relative; }
+            
+            /* Golden Frame Effect */
+            .gold-frame { border: 8px solid #ffffff; outline: 1px solid #eaddcf; margin: 10px; }
+            .inner-content { padding: 40px 30px; border: 1px solid ${goldColor}; margin: 5px; position: relative; }
+            
+            /* Typography */
+            .date { font-family: 'Playfair Display', Georgia, serif; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: #a8a29e; text-align: center; margin-bottom: 15px; }
+            .main-title { font-family: 'Playfair Display', Georgia, serif; font-size: 34px; line-height: 1.1; color: ${accentColor}; text-align: center; margin: 0 0 30px 0; font-weight: 700; }
+            
+            /* Polaroid Image Frame */
+            .image-frame { background-color: #ffffff; padding: 15px 15px 40px 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.12); transform: rotate(-1deg); margin: 20px auto 40px; max-width: 90%; width: 100%; border: 1px solid #eee; }
+            .bouquet-img { width: 100%; display: block; }
+            
+            /* Decorative */
+            .divider { width: 40px; height: 2px; background-color: ${goldColor}; margin: 30px auto; opacity: 0.6; }
+            .quote { font-family: 'Playfair Display', Georgia, serif; font-style: italic; font-size: 16px; color: #888; text-align: center; margin-bottom: 40px; }
+            
+            /* Message Body */
+            .message-body { font-family: 'Playfair Display', Georgia, serif; font-size: 19px; line-height: 1.8; color: ${textColor}; padding: 0 10px; text-align: center; white-space: pre-line; }
+            
+            /* Signature */
+            .signature { font-family: 'Great Vibes', 'Brush Script MT', cursive; font-size: 32px; color: ${accentColor}; text-align: right; margin-top: 40px; padding-right: 20px; }
+            
+            /* Footer */
+            .footer { background-color: #f4f1ea; padding: 30px; text-align: center; font-size: 11px; color: #9ca3af; letter-spacing: 1px; text-transform: uppercase; }
+            .btn { text-decoration: none; color: ${goldColor}; border-bottom: 1px solid ${goldColor}; padding-bottom: 2px; transition: opacity 0.3s; }
+            .btn:hover { opacity: 0.7; }
+        </style>
+    </head>
+    <body>
+        <div class="wrapper">
+            <div style="height: 30px;"></div>
+            <div class="container">
+                <div class="gold-frame">
+                    <div class="inner-content">
+                        <!-- Header -->
+                        <div class="date">${dateStr}</div>
+                        <h1 class="main-title">${message.subject}</h1>
+                        
+                        <!-- Image -->
+                        <div class="image-frame">
+                            <img src="cid:bouquet-daily" alt="Bouquet" class="bouquet-img" />
+                        </div>
+                        
+                        <!-- Divider -->
+                        <div class="divider"></div>
+                        
+                        <!-- Message -->
+                        <div class="message-body">
+                            ${message.text}
+                        </div>
+                        
+                        <!-- Signature -->
+                        <div class="signature">
+                            - ${message.signature}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Minimal Footer -->
+            <div class="footer">
+                Made with ❤️ for Venooo • <a href="${env.SITE_URL}?seed=${seed}" class="btn">View in Browser</a>
+            </div>
+        </div>
+    </body>
+    </html>
+    `;
 
   console.log('Sending email...');
   const info = await transporter.sendMail({
@@ -128,7 +184,7 @@ const main = async () => {
       {
         filename: `bouquet-${seed}.png`,
         content: pngBuffer,
-        cid: 'bouquet-daily', // same cid value as in the html img src
+        cid: 'bouquet-daily',
       },
     ],
   });
