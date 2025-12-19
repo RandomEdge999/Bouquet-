@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronLeft, Reply, Archive, Trash2, MoreHorizontal } from 'lucide-react';
+import { ChevronLeft, Reply, Archive, Trash2, MoreHorizontal } from 'lucide-react';
 
 interface NoteCardProps {
     subject: string;

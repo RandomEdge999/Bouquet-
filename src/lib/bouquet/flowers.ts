@@ -61,7 +61,7 @@ const getFlowerContent = (type: FlowerType, color: string, prng: () => number): 
   }
 };
 
-const generateRose = (color: string, prng: () => number): string => {
+const generateRose = (color: string, _prng: () => number): string => {
   // Artistic Rose with multiple overlapping petals
   return `
     <g>
@@ -106,7 +106,7 @@ const generateDaisy = (color: string, prng: () => number): string => {
   `;
 };
 
-const generateTulip = (color: string, prng: () => number): string => {
+const generateTulip = (color: string, _prng: () => number): string => {
   return `
     <g transform="translate(0, -20)">
       <!-- Left Petal -->
@@ -123,7 +123,7 @@ const generateTulip = (color: string, prng: () => number): string => {
   `;
 };
 
-const generateFern = (color: string, prng: () => number): string => {
+const generateFern = (color: string, _prng: () => number): string => {
   // Simple Fern Leaf
   let leaves = '';
   for (let i = 0; i < 8; i++) {
@@ -157,7 +157,7 @@ const generateEucalyptus = (color: string, prng: () => number): string => {
   `;
 };
 
-const generateButterfly = (color: string, prng: () => number): string => {
+const generateButterfly = (color: string, _prng: () => number): string => {
   return `
     <g>
       <!-- Wings -->
@@ -171,7 +171,7 @@ const generateButterfly = (color: string, prng: () => number): string => {
   `;
 };
 
-const generateLadybug = (color: string, prng: () => number): string => {
+const generateLadybug = (_color: string, _prng: () => number): string => {
   return `
     <g>
       <circle cx="0" cy="0" r="10" fill="red" />
@@ -184,7 +184,7 @@ const generateLadybug = (color: string, prng: () => number): string => {
   `;
 };
 
-const generatePeony = (color: string, prng: () => number): string => {
+const generatePeony = (color: string, _prng: () => number): string => {
   // Large, ruffled, multi-layered bloom
   return `
     <g>
@@ -203,7 +203,7 @@ const generatePeony = (color: string, prng: () => number): string => {
   `;
 };
 
-const generateLily = (color: string, prng: () => number): string => {
+const generateLily = (color: string, _prng: () => number): string => {
   // Star shape with distinct stamens
   return `
     <g>
@@ -224,7 +224,7 @@ const generateLily = (color: string, prng: () => number): string => {
   `;
 };
 
-const generateCarnation = (color: string, prng: () => number): string => {
+const generateCarnation = (color: string, _prng: () => number): string => {
   // Serrated edges, tight gathering
   return `
     <g>
