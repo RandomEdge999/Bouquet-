@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { DateTime } from 'luxon';
 import nodemailer from 'nodemailer';
 import { Resvg } from '@resvg/resvg-js';
