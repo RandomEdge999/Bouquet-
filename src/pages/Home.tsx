@@ -119,10 +119,9 @@ export const Home: React.FC = () => {
                                         }}
                                     />
 
-                                    {/* The Bouquet Container - BIGGER, with overflow visible to prevent clipping */}
                                     <div
                                         ref={bouquetRef}
-                                        className="relative z-10 overflow-visible"
+                                        className="relative z-50 overflow-visible pointer-events-none" // Raised Z-index, added pointer-events-none
                                         style={{
                                             // Increased size for mobile, and MUCH larger max-width for desktop
                                             width: 'min(62vh, 85vw, 650px)',

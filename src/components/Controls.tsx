@@ -22,8 +22,7 @@ export const Controls: React.FC<ControlsProps> = ({ onGenerate }) => {
                     glass-ios
                     group flex items-center gap-2
                     pl-3 pr-4 py-2 rounded-full 
-                    transition-all
-                    hover:scale-[1.02] active:scale-[0.98]
+                    /* Removed transition-all and active:scale to prevent fighting with framer-motion */
                     text-stone-700
                 "
             >
