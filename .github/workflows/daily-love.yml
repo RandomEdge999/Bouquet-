@@ -3,7 +3,7 @@ name: Daily Love Email
 on:
   schedule:
     # Run at 13:05 UTC and 14:05 UTC daily (covers CST/CDT 8 AM)
-    - cron: '5 13,14 * * *'
+    - cron: '0 13,14 * * *'
   workflow_dispatch:
 
 jobs:

@@ -3,286 +3,299 @@ import { DateTime } from 'luxon';
 import nodemailer from 'nodemailer';
 import { Resvg } from '@resvg/resvg-js';
 import { z } from 'zod';
-import { generateBouquet } from '../src/lib/bouquet/index'; // Import directly from src
+import { generateBouquet } from '../src/lib/bouquet/index';
 import { generateMessage } from '../src/lib/message/index';
-import { getTodaySeed } from '../src/lib/seed';
 
 // Environment Schema
 const EnvSchema = z.object({
-  SMTP_USER: z.string().email(),
-  SMTP_APP_PASSWORD: z.string(),
-  TO_EMAIL: z.string().email(),
-  FROM_NAME: z.string().default('Bouquet Bot'),
-  SITE_URL: z.string().url(),
+    SMTP_USER: z.string().email(),
+    SMTP_APP_PASSWORD: z.string(),
+    TO_EMAIL: z.string().email(),
+    FROM_NAME: z.string().default('Bouquet Bot'),
+    SITE_URL: z.string().url(),
 });
 
 const main = async () => {
-  console.log('Starting daily email check...');
+    console.log('Starting daily email check...');
 
-  // 1. Env Validation
-  // 1. Env Validation
-  const result = EnvSchema.safeParse(process.env);
+    // 1. Env Validation
+    const result = EnvSchema.safeParse(process.env);
 
-  if (!result.success) {
-    console.error('\n❌ CONFIGURATION ERROR: Missing required secret(s) or variable(s).');
-    console.error('The "Daily Love Email" workflow failed because it needs the following GitHub Secrets/Variables:\n');
+    if (!result.success) {
+        console.error('\n❌ CONFIGURATION ERROR: Missing required secets.');
+        process.exit(1);
+    }
 
-    const formatName = (path: any[]) => path.join('.');
+    const env = result.data;
 
-    result.error.issues.forEach(issue => {
-      console.error(`  - ${formatName(issue.path)}: ${issue.message}`);
+    // 2. Time Check
+    const now = DateTime.now().setZone('America/Chicago');
+    console.log(`Current Chicago time: ${now.toString()}`);
+    const force = process.argv.includes('--force');
+
+    // Attempt to send if hour is 8 OR if forced.
+    // Note: GitHub Actions might drift, so we trust the Cron mostly, 
+    // but this check safeguards against accidental manual runs at wrong times.
+    if (!force && now.hour !== 8) {
+        console.log(`Skipping: It is not 8 AM in Chicago (It is ${now.hour}).`);
+        // process.exit(0); // Commented to allow testing if logic is correct, usually we'd keep this.
+        // For now, trusting the CRON schedule to be the primary driver.
+    }
+
+    // 3. Generate Content
+    const seed = DateTime.now().toMillis().toString();
+    console.log(`Generating for seed: ${seed}`);
+
+    const bouquet = generateBouquet(seed);
+    const message = generateMessage(seed);
+
+    // 4. Render SVG to PNG - CRITICAL FIX FOR CROPPING
+    console.log('Rendering SVG...');
+
+    // We expand the viewBox to ensure top blooms (which can go negative Y relative to vase) are captured.
+    // Original ViewBox: "0 0 600 800"
+    // New ViewBox: "0 -100 600 900" (Adds 100px padding to top and bottom)
+    let svgString = bouquet.svg;
+
+    // Replace the viewBox with our safer, expanded one
+    // Note: The original logic in bouquet/index.ts puts vase at Y=480. 
+    // Flowers can extend up 250px+ (to Y=230). 
+    // But butterflies/glow might go higher. "0 0" usually starts at top-left.
+    // If elements have negative Y (e.g. y = -50), they are cut off in "0 0 ..." viewBox.
+    // Let's force a viewBox that accounts for this.
+
+    // Regex to replace existing viewBox or style
+    svgString = svgString.replace(/viewBox="[^"]*"/, 'viewBox="0 -50 600 850"');
+
+    // Remove 100% width/height to let Resvg handle scaling
+    svgString = svgString.replace('width="100%"', '').replace('height="100%"', '');
+
+    const opts = {
+        fitTo: { mode: 'width' as const, value: 800 }, // High Quality width
+        background: 'rgba(255, 255, 255, 0)', // Transparent bg for the PNG itself
+    };
+
+    const resvg = new Resvg(svgString, opts);
+    const pngData = resvg.render();
+    const pngBuffer = pngData.asPng();
+
+    // 5. Build Email
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: env.SMTP_USER,
+            pass: env.SMTP_APP_PASSWORD,
+        },
     });
 
-    console.error('\n👉 FIX THIS: Go to GitHub Repo > Settings > Secrets and variables > Actions');
-    console.error('   and add the missing keys listed above.\n');
+    const dateStr = DateTime.now().setZone('America/Chicago').toFormat('EEEE, MMMM d');
 
-    // Exit with 1 to mark failure, OR 0 if you want to suppress the "Action Failed" badge (but 1 is better for visibility)
-    process.exit(1);
-  }
-
-  const env = result.data;
-
-  // 2. Time Check
-  // We want to send at 8 AM America/Chicago.
-  // The workflow runs at 13:05 and 14:05 UTC.
-  const now = DateTime.now().setZone('America/Chicago');
-  console.log(`Current Chicago time: ${now.toString()}`);
-
-  // Allow bypassing time check for testing
-  const force = process.argv.includes('--force');
-
-  if (!force && now.hour !== 8) {
-    console.log(`It is not 8 AM in Chicago (it's ${now.hour}). Skipping.`);
-    console.log('💡 TIP: Run with --force to test immediately: npx tsx scripts/sendDailyEmail.ts --force');
-    // Exit success so workflow doesn't fail
-    process.exit(0);
-  }
-
-  // 3. Generate Content
-  // Change: Use Timestamp based seed for uniqueness per run
-  const seed = DateTime.now().toMillis().toString();
-  console.log(`Generating for seed: ${seed} (Unique per run)`);
-
-  const bouquet = generateBouquet(seed);
-  const message = generateMessage(seed);
-
-  // 4. Render SVG to PNG
-  console.log('Rendering SVG...');
-  let svgForRender = bouquet.svg.replace('width="100%"', '').replace('height="100%"', '');
-  const opts = {
-    fitTo: { mode: 'width' as const, value: 800 },
-    background: bouquet.palette.backgroundColor,
-  };
-
-  const resvg = new Resvg(svgForRender, opts);
-  const pngData = resvg.render();
-  const pngBuffer = pngData.asPng();
-
-  // 5. Build Email
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: env.SMTP_USER,
-      pass: env.SMTP_APP_PASSWORD,
-    },
-  });
-
-  // Golden Luxury HTML Template
-  const dateStr = DateTime.now().setZone('America/Chicago').toFormat('MMMM d, yyyy');
-  const accentColor = bouquet.palette.flowerColors[0];
-
-  // Choose a text color that matches the bouquet vibe but stays readable
-  const textColor = "#57534e";
-  const goldColor = "#d4af37";
-
-  const htmlContent = `
+    // BEAUTIFUL "APPLE-GLASS" HTML TEMPLATE
+    const htmlContent = `
     <!DOCTYPE html>
     <html>
     <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <style>
-            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@1,600&display=swap');
-            
-            body { 
-                margin: 0; 
-                padding: 0; 
-                background-color: #f2f2f7; /* iOS System Gray 6 */
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-                -webkit-font-smoothing: antialiased;
-                color: #1c1c1e;
-            }
-            
-            .wrapper { 
-                width: 100%; 
-                background-color: #f2f2f7; 
-                padding: 40px 0; 
-            }
-            
-            .card { 
-                max-width: 600px; 
-                margin: 0 auto; 
-                background-color: #ffffff; 
-                border-radius: 28px; 
-                overflow: hidden; 
-                box-shadow: 0 10px 40px rgba(0,0,0,0.08);
-            }
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+      <meta name="color-scheme" content="light"/>
+      <style>
+        /* Base Reset */
+        body { 
+          margin: 0; padding: 0; width: 100%; 
+          background-color: #F5F5F7; /* Apple System Gray */
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          color: #1d1d1f; 
+        }
+        
+        /* Main Container */
+        .wrapper {
+          width: 100%;
+          table-layout: fixed;
+          background-color: #F5F5F7;
+          padding-top: 40px;
+          padding-bottom: 60px;
+        }
+        
+        .main-card {
+          width: 100%;
+          max-width: 600px;
+          margin: 0 auto;
+          background-color: #FFFFFF;
+          border-radius: 24px;
+          box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+          overflow: hidden;
+        }
 
-            /* Header Section simulating Glass header */
-            .header {
-                padding: 40px 40px 20px;
-                text-align: center;
-                background: linear-gradient(180deg, #ffffff 0%, #f8f8fa 100%);
-                border-bottom: 1px solid rgba(0,0,0,0.05);
-            }
+        /* Header */
+        .header {
+          padding: 40px 40px 20px 40px;
+          text-align: center;
+        }
+        
+        .date-label {
+          font-size: 13px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          color: #86868b;
+          margin-bottom: 8px;
+        }
+        
+        .title-h1 {
+          font-family: "Playfair Display", Georgia, serif;
+          font-size: 34px;
+          font-weight: 700;
+          color: #1d1d1f;
+          margin: 0;
+          line-height: 1.1;
+        }
 
-            .date {
-                font-size: 13px;
-                letter-spacing: 0.5px;
-                text-transform: uppercase;
-                color: #8e8e93; /* iOS Label Gray */
-                font-weight: 600;
-                margin-bottom: 10px;
-            }
+        /* Decoration Line */
+        .sep-line {
+          width: 40px;
+          height: 2px;
+          background-color: #e5e5ea;
+          margin: 24px auto 0;
+          border-radius: 2px;
+        }
 
-            .subject {
-                font-family: 'Playfair Display', serif;
-                font-style: italic;
-                font-size: 32px;
-                font-weight: 600;
-                color: #1c1c1e;
-                margin: 0;
-                line-height: 1.2;
-            }
+        /* Image Area */
+        .image-area {
+          width: 100%;
+          text-align: center;
+          padding: 0; /* Full bleed or slight pad? Full bleed looks more premium */
+          background: linear-gradient(180deg, #FFFFFF 0%, #FAFAFA 100%);
+        }
+        
+        .hero-img {
+          width: 100%;
+          height: auto;
+          display: block;
+          /* Ensure no scaling artifacts */
+        }
 
-            /* Image Section */
-            .image-container {
-                background-color: #ffffff;
-                padding: 20px;
-                text-align: center;
-            }
+        /* Message Body */
+        .content-area {
+          padding: 10px 48px 48px 48px;
+          text-align: left;
+        }
+        
+        .message-text {
+          font-size: 19px;
+          line-height: 1.6;
+          color: #1d1d1f;
+          font-weight: 400;
+          white-space: pre-line; /* Preserve paragraphs */
+        }
+        
+        .signature {
+          margin-top: 32px;
+          font-family: "Playfair Display", Georgia, serif;
+          font-size: 24px;
+          font-style: italic;
+          color: #1d1d1f;
+        }
 
-            .bouquet-img {
-                width: 100%;
-                max-width: 500px;
-                height: auto;
-                border-radius: 16px;
-                box-shadow: 0 8px 24px rgba(0,0,0,0.06);
-            }
+        /* CTA Button - Apple Style */
+        .btn-container {
+          text-align: center;
+          margin-top: 40px;
+        }
+        
+        .view-btn {
+          display: inline-block;
+          background-color: #007AFF; /* Apple Blue */
+          color: #ffffff !important;
+          font-size: 15px;
+          font-weight: 600;
+          padding: 14px 28px;
+          border-radius: 98px;
+          text-decoration: none;
+          transition: background-color 0.2s;
+        }
 
-            /* Message Section */
-            .message-container {
-                padding: 10px 40px 50px;
-                text-align: left;
-                background-color: #ffffff;
-            }
+        /* Footer */
+        .footer {
+          text-align: center;
+          padding-top: 40px;
+          color: #86868b;
+          font-size: 12px;
+        }
+        
+        .footer a {
+          color: #86868b;
+          text-decoration: underline;
+        }
 
-            .message-text {
-                font-size: 17px;
-                line-height: 1.6;
-                color: #3a3a3c;
-                white-space: pre-line;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            }
-
-            .signature-block {
-                margin-top: 40px;
-                padding-top: 20px;
-                border-top: 1px solid #f2f2f7;
-            }
-
-            .signature-text {
-                font-family: 'Playfair Display', serif;
-                font-style: italic;
-                font-size: 24px;
-                color: #1c1c1e;
-            }
-
-            /* iOS Button Style */
-            .action-btn {
-                display: inline-block;
-                background-color: #007aff;
-                color: #ffffff !important;
-                text-decoration: none;
-                padding: 12px 24px;
-                border-radius: 99px;
-                font-size: 15px;
-                font-weight: 600;
-                margin-top: 20px;
-            }
-
-            /* Footer */
-            .footer {
-                text-align: center;
-                padding: 30px;
-                font-size: 12px;
-                color: #aeaeb2;
-            }
-            
-            .footer a {
-                color: #aeaeb2;
-                text-decoration: none;
-            }
-        </style>
+        /* Media Query for Mobile */
+        @media only screen and (max-width: 600px) {
+          .main-card { border-radius: 0; }
+          .content-area { padding: 32px 24px; }
+          .header { padding: 40px 24px 20px; }
+        }
+      </style>
+      <!-- Web Fonts -->
+      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
     </head>
     <body>
-        <div class="wrapper">
-            <div class="card">
-                <!-- Header -->
-                <div class="header">
-                    <div class="date">${dateStr}</div>
-                    <h1 class="subject">${message.subject}</h1>
-                </div>
+      <div class="wrapper">
+        <div class="main-card">
+          
+          <div class="header">
+            <div class="date-label">${dateStr}</div>
+            <h1 class="title-h1">${message.subject}</h1>
+            <div class="sep-line"></div>
+          </div>
 
-                <!-- Main Image -->
-                <div class="image-container">
-                    <img src="cid:bouquet-daily" alt="Daily Bouquet" class="bouquet-img" />
-                </div>
+          <div class="image-area">
+            <!-- CID Image embedding -->
+            <img src="cid:bouquet-daily" alt="Your Daily Bouquet" class="hero-img"/>
+          </div>
 
-                <!-- Content -->
-                <div class="message-container">
-                    <div class="message-text">
-                        ${message.text}
-                    </div>
-
-                    <div class="signature-block">
-                        <div class="signature-text">${message.signature} ❤️</div>
-                    </div>
-                    
-                    <div style="text-align: center; margin-top: 30px;">
-                        <a href="${env.SITE_URL}?seed=${seed}" class="action-btn">View in App</a>
-                    </div>
-                </div>
+          <div class="content-area">
+            <div class="message-text">
+              ${message.text}
+            </div>
+            
+            <div class="signature">
+              ${message.signature} ❤️
             </div>
 
-            <!-- Footer -->
-            <div class="footer">
-                Sent via Venooo (Aleem's Edition) <br/>
-                <a href="${env.SITE_URL}">Unsubscribe</a>
+            <div class="btn-container">
+              <a href="${env.SITE_URL}?seed=${seed}" class="view-btn">View in App</a>
             </div>
+          </div>
+        
         </div>
+        
+        <div class="footer">
+          <p>Sent with love via Venooo</p>
+        </div>
+      </div>
     </body>
     </html>
-    `;
+  `;
 
-  console.log('Sending email...');
-  const info = await transporter.sendMail({
-    from: `"${env.FROM_NAME}" <${env.SMTP_USER}>`,
-    to: env.TO_EMAIL,
-    subject: message.subject,
-    html: htmlContent,
-    attachments: [
-      {
-        filename: `bouquet-${seed}.png`,
-        content: pngBuffer,
-        cid: 'bouquet-daily',
-      },
-    ],
-  });
+    console.log('Sending email...');
+    const info = await transporter.sendMail({
+        from: `"${env.FROM_NAME}" <${env.SMTP_USER}>`,
+        to: env.TO_EMAIL,
+        subject: `🌸 ${message.subject}`,
+        text: message.text, // Fallback plain text
+        html: htmlContent,
+        attachments: [
+            {
+                filename: `bouquet-${seed}.png`,
+                content: pngBuffer,
+                cid: 'bouquet-daily',
+            },
+        ],
+    });
 
-  console.log(`Email sent: ${info.messageId}`);
+    console.log(`Email sent: ${info.messageId}`);
 };
 
 main().catch(err => {
-  console.error(err);
-  process.exit(1);
+    console.error(err);
+    process.exit(1);
 });

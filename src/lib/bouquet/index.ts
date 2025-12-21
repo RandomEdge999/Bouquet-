@@ -83,7 +83,7 @@ export const generateBouquet = (seed: string): BouquetData => {
   const vaseWidth = 130 + prng() * 40; // 130-170
   const vaseHeight = 210 + prng() * 40; // 210-250
   const vaseX = width / 2;
-  const vaseY = 520; // Raised from 580 to keep vase on table surface (mobile fix)
+  const vaseY = 480; // Raised further (was 520) to sit securely on table
 
   // Randomize shape curvature
   const curve1 = 10 + prng() * 20;
