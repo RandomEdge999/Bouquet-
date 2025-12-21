@@ -36,6 +36,7 @@ const main = async () => {
   // Attempt to send if hour is 8 OR if forced.
   if (!force && now.hour !== 8) {
     console.log(`Skipping: It is not 8 AM in Chicago (It is ${now.hour}).`);
+    // process.exit(0);
   }
 
   // 3. Generate Content
@@ -45,20 +46,20 @@ const main = async () => {
   const bouquet = generateBouquet(seed);
   const message = generateMessage(seed);
 
-  // 4. Render SVG to PNG - MASSIVE CANVAS FIX
+  // 4. Render SVG to PNG - SMART CROP STRATEGY
   console.log('Rendering SVG...');
 
   let svgString = bouquet.svg;
 
-  // CRITICAL FIX: The user reported petals getting cut off by margins.
-  // We will dramatically expand the viewBox to create a "tall" canvas canvas.
-  // Original Bouquet Width: 600, Vase Y: 480
-  // We set a HUGE viewBox to capture everything + padding.
-  // x=-50, y=-200 (top headroom), w=700, h=1000
+  // SMART CROP: Tighter bounds to remove excess padding
+  // Vase Y: 480. Vase Bottom: ~720 (height ~240).
+  // Flowers Top: ~0-50.
+  // Width: 600.
+  // New ViewBox: x=-50 (buffer), y=-50 (top buffer), w=700 (width+buffer), h=800 (tight fit to vase bottom + shadow)
 
-  svgString = svgString.replace(/viewBox="[^"]*"/, 'viewBox="-50 -150 700 1000"');
+  svgString = svgString.replace(/viewBox="[^"]*"/, 'viewBox="-50 -50 700 850"');
 
-  // Remove fixed dimensions to allow Resvg to scale using fitTo
+  // Remove fixed dimensions
   svgString = svgString.replace('width="100%"', '').replace('height="100%"', '');
 
   // Force overflow visible
@@ -84,7 +85,7 @@ const main = async () => {
 
   const dateStr = DateTime.now().setZone('America/Chicago').toFormat('EEEE, MMMM d');
 
-  // --- THE PERFECT "APPLE LIQUID GLASS" EMAIL TEMPLATE ---
+  // --- THE APPROVED "APPLE GLASS" DESIGN ---
   const htmlContent = `
     <!DOCTYPE html>
     <html lang="en">
@@ -94,138 +95,124 @@ const main = async () => {
       <meta name="color-scheme" content="light"/>
       <title>${message.subject}</title>
       <style>
-        /* Reset */
+        /* Modern Reset */
         body, table, td, div, p, a {
-          -webkit-text-size-adjust: 100%;
-          -ms-text-size-adjust: 100%;
           margin: 0; padding: 0;
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
           color: #1d1d1f;
+          -webkit-font-smoothing: antialiased;
         }
         
         body { 
           width: 100% !important; 
           height: 100% !important; 
-          background-color: #F5F5F7; /* Apple System Gray */
+          background-color: #F5F5F7; /* Apple System Gray Surface */
         }
         
-        /* Main Wrapper */
         .wrapper {
           width: 100%;
           background-color: #F5F5F7;
-          padding: 60px 0;
+          padding: 40px 0 60px;
         }
 
-        /* Glass Card Container */
+        /* The Glass Card */
         .glass-card {
-          width: 100%;
-          max-width: 600px;
-          margin: 0 auto;
-          background: #FFFFFF;
-          border-radius: 32px; /* Smooth Apple-like corners */
-          box-shadow: 0 20px 40px rgba(0,0,0,0.08); /* Soft diffuse shadow */
-          overflow: hidden;
+            width: 90%;
+            max-width: 600px;
+            margin: 0 auto;
+            background: #FFFFFF;
+            border-radius: 32px; /* iOS Standard Corner Radius */
+            box-shadow: 0 12px 36px rgba(0,0,0,0.06); /* Soft diffuse shadow */
+            overflow: hidden;
+            display: block;
         }
 
-        /* Hero Image - Full Bleed, No Margins */
-        .hero-image-container {
-          width: 100%;
-          background: linear-gradient(180deg, #FFFFFF 0%, #FAFAFA 100%);
-          text-align: center;
-          padding-top: 20px;
-          padding-bottom: 0px; /* Removed padding below to remove "gap" */
-          line-height: 0; /* Fixes potential image font-size gap */
+        /* Hero Image Container - ZERO GAP */
+        .hero {
+            width: 100%;
+            background: linear-gradient(180deg, #FFFFFF 0%, #FAFAFA 100%);
+            margin: 0;
+            padding: 0;
+            line-height: 0; /* Prevents inline-block spacing gaps */
         }
         
         .hero-img {
-          width: 100%;
-          height: auto;
-          display: block;
-          max-width: 600px; /* Constrain max width but allow full bleed */
-          margin: 0 auto;
+            width: 100%;
+            height: auto;
+            display: block;
         }
 
         /* Content Area */
         .content {
-          padding: 40px 48px 60px 48px;
-          text-align: center; /* Centered elegance */
+            padding: 48px 40px 56px;
+            text-align: center;
         }
 
         /* Typography */
         .date {
-          font-size: 13px;
-          font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 0.8px;
-          color: #86868b; /* Apple Label Gray */
-          margin-bottom: 12px;
-          line-height: normal;
+            font-size: 13px;
+            font-weight: 600;
+            color: #86868b;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 16px;
         }
         
         .title {
-          font-family: "Playfair Display", Georgia, serif;
-          font-size: 42px; /* Large, bold, editorial */
-          font-weight: 700;
-          color: #1d1d1f;
-          line-height: 1.1;
-          margin-bottom: 32px;
+            font-family: "Playfair Display", Georgia, serif;
+            font-size: 38px;
+            font-weight: 700;
+            line-height: 1.15;
+            color: #1d1d1f;
+            margin-bottom: 24px;
         }
         
         .message {
-          font-size: 20px;
-          line-height: 1.6;
-          color: #1d1d1f;
-          font-weight: 400;
-          white-space: pre-line;
-          margin-bottom: 40px;
-          text-align: left; /* Message aligned left for readability */
+            font-size: 18px;
+            line-height: 1.6;
+            color: #1d1d1f;
+            margin-bottom: 32px;
+            text-align: left; /* Better readability */
         }
         
         .signature {
-          font-family: "Playfair Display", Georgia, serif;
-          font-size: 26px;
-          font-style: italic;
-          color: #1d1d1f;
-          margin-top: 10px;
-          text-align: left;
+            font-family: "Playfair Display", Georgia, serif;
+            font-size: 24px;
+            font-style: italic;
+            color: #1d1d1f;
+            text-align: left;
+            margin-top: 8px;
         }
 
-        /* Glass Button */
+        /* Button */
         .btn-wrapper {
-          margin-top: 50px;
-          text-align: center;
+            margin-top: 48px;
         }
         
         .glass-btn {
-          display: inline-block;
-          background-color: #007AFF;
-          color: #FFFFFF !important;
-          text-decoration: none;
-          font-size: 16px;
-          font-weight: 600;
-          padding: 16px 36px;
-          border-radius: 99px;
-          box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+            display: inline-block;
+            background-color: #007AFF; /* Apple Blue */
+            color: #FFFFFF !important;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 600;
+            padding: 14px 32px;
+            border-radius: 99px;
+            transition: opacity 0.2s;
         }
 
-        /* Footer */
         .footer {
-          text-align: center;
-          padding-top: 40px;
-          color: #86868b;
-          font-size: 12px;
-          line-height: 1.5;
+            margin-top: 40px;
+            text-align: center;
+            color: #86868b;
+            font-size: 12px;
         }
-        
-        .footer a {
-          color: #86868b;
-          text-decoration: none;
-        }
+        .footer a { color: #86868b; }
 
         @media only screen and (max-width: 600px) {
-           .content { padding: 32px 24px 48px 24px; }
-           .title { font-size: 34px; }
-           .glass-card { border-radius: 0; }
+            .glass-card { width: 100%; border-radius: 0; max-width: 100%; }
+            .content { padding: 40px 24px 48px; }
+            .title { font-size: 32px; }
         }
       </style>
       
@@ -236,8 +223,8 @@ const main = async () => {
       <div class="wrapper">
         <div class="glass-card">
           
-          <!-- Image First for Impact -->
-          <div class="hero-image-container">
+          <!-- Full Bleed Hero -->
+          <div class="hero">
              <img src="cid:bouquet-daily" alt="Daily Bouquet" class="hero-img"/>
           </div>
 
